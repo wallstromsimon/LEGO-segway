@@ -36,8 +36,8 @@ A = M\Atilde;
 B = M\Btilde;
 
 C=diag([1 1 1 1]);
-D=zeros(4);
+D=[0 0 0 0]';
 
 % State Space for the open-loop system
-%ss_open=ss(A,B,C,D); %cont
+ss_open=ss(A,B,C,D); %cont
 
