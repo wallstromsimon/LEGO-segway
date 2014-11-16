@@ -7,9 +7,9 @@ mw = 0.034; % (kg) combined mass of BOTH wheels
 Jb = 0.0019; % (kg*m^2) Body inertia
 b = 0.062; % damping factor (approximate!)
 g = 9.81;  % (m/s^2) gravity
-Nmotors=2;  % number of motors used
-Klego=2;   % A scaling parameter for motor output (approx)
-Km = Nmotors*b/Klego ; % Motor effort constant; Km = 0.062 (approx)
+%Nmotors=2;  % number of motors used
+%Klego=2;   % A scaling parameter for motor output (approx)
+%Km = Nmotors*b/Klego ; % Motor effort constant; Km = 0.062 (approx)
 
 % State Space model (Linearized)
 M33=Jw+Rw^2*mb+Rw^2*mw;
@@ -38,7 +38,8 @@ B = M\Btilde;
 C=diag([1 1 1 1]);
 D=0;
 
-p = [-491.2620 -10 -90 -6.7797];
+%p = [-491.2620 -10 -90 -6.7797];
+p = [-25 -20 -15 -10];
 K=place(A,B,p);
 
 % State Space for the open-loop system
@@ -47,7 +48,7 @@ ss_open=ss(A,B,C,D); %cont
 %pole(ss_open)
 
 ss1=ss(A-B*K,B,C,D);
-G = zpk(ss1);
+G = zpk(ss_open);
 
 [z,p,k]=zpkdata(G);
 
@@ -61,7 +62,8 @@ sys = feedback(clsys*P1*C1,1);
 
 h = 0.001;
 H = c2d(sys,h);
+x0 = [0 0 0 0];
 
 [u,t] = gensig('square',6,20,h);
 
-lsim(H, u, t)
+lsim(H, u, t, x0)
