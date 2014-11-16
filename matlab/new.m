@@ -43,7 +43,7 @@ X0 = [0 9*pi/180 0 0]';
 % State Space for the open-loop system
 ss_open=ss(A,B,C,D); %cont
 
-h = 0.1;
+h = 0.01;
 H = c2d(ss_open, h);
 
 [A2, B2, C2, D2] = ssdata(H);
