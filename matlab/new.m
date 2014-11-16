@@ -36,37 +36,14 @@ A = M\Atilde;
 B = M\Btilde;
 
 C=diag([1 1 1 1]);
-D=0;
+D=[0 0 0 0]';
 
-%p = [-491.2620 -10 -90 -6.7797];
-%p = [-25 -20 -15 -10];
-%K=place(A,B,p);
-
+X0 = [0 9*pi/180 0 0]';
 
 % State Space for the open-loop system
 ss_open=ss(A,B,C,D); %cont
 
-%pole(ss_open)
+h = 0.1;
+H = c2d(ss_open, h);
 
-
-%ss1=ss(A-B*K,B,C,D);
-
-G = zpk(ss_open);
-
-[z,p,k]=zpkdata(G);
-
-P2 = zpk(z{2,1},p{2,1},k(2));
-P1 = zpk(z{1,1},p{1,1},k(1));
-
-C2 = pidtune(P2,pidstd(1,1,1),2)
-clsys = feedback(P2*C2,1);
-C1 = pidtune(clsys*P1,pidstd(1,1,1),0.2)
-sys = feedback(clsys*P1*C1,1);
-
-h = 0.001;
-H = c2d(sys,h);
-x0 = [0 0 0 0];
-
-[u,t] = gensig('square',6,20,h);
-
-lsim(H, u, t, x0)
+[A2, B2, C2, D2] = ssdata(H);
