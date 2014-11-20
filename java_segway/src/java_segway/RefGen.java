@@ -3,22 +3,41 @@ package java_segway;
 import se.lth.cs.realtime.PeriodicThread;
 
 public class RefGen extends PeriodicThread{
+	private double ref;
+	private int mode;
+	private int rad;
 
-	public RefGen(long arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+	public RefGen(long period, int rad) {
+		super(period);
+		this.rad = rad;
 	}
 	
-	public void getRef(){
-		
+	public synchronized double getRef(){
+		return ref;
 	}
 	
-	public void setMode(){
-		
+	public synchronized void setRef(double ref){
+		this.ref = ref;
 	}
 	
-	public void setRef(){
-		
+	public synchronized void setMode(int mode){
+		this.mode = mode;
+	}
+	
+	public synchronized int getMode(){
+		return mode;
+	}
+	
+	public void perform(){
+		if(mode == 0){
+			setRef(0);
+		}else if(mode == 1){
+			if(getRef() == 0){
+				setRef(rad);
+			}else{
+				setRef(0);
+			}
+		}
 	}
 
 }

@@ -1,6 +1,7 @@
 package java_segway;
 
 import se.lth.cs.realtime.PeriodicThread;
+import lejos.nxt.NXTRegulatedMotor;
 
 public class IO extends PeriodicThread{
 
@@ -9,19 +10,25 @@ public class IO extends PeriodicThread{
 		// TODO Auto-generated constructor stub
 	}
 
-	public void getPos(){
+	public double getPos(){
+		return 0;
 		
 	}
 	
-	public void getAngle(){
+	public double getAngle(){
+		return 0;
+	}
+	
+	public void setMotor(double diff){
 		
 	}
 	
-	public void setMotor(){
+	public void perform(){
 		
 	}
-	
-	public void start(){
+
+	public void reset() {
+		// TODO Auto-generated method stub
 		
 	}
 }
