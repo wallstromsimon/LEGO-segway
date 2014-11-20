@@ -8,8 +8,6 @@ public class helloworld {
 		System.out.println("Hello robot");
 		Button.waitForAnyPress();
 		System.out.println("Hello human");
-		Motor.B.forward();
-		Motor.C.forward();
 		Button.waitForAnyPress();
 	}
 }
