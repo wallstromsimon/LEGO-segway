@@ -14,6 +14,7 @@ public class OpCom{
 		Button.LEFT.addButtonListener(new ButtonListener() {
 			@Override
 			public void buttonPressed(Button b) {
+				System.out.println("Reset");
 				reset();
 			}
 
@@ -25,6 +26,7 @@ public class OpCom{
 		Button.RIGHT.addButtonListener(new ButtonListener() {
 			@Override
 			public void buttonPressed(Button b) {
+				System.out.println("New mode, yay!");
 				setMode();
 			}
 			

@@ -5,11 +5,12 @@ import se.lth.cs.realtime.PeriodicThread;
 public class RefGen extends PeriodicThread{
 	private double ref;
 	private int mode;
-	private int rad;
+	private int deg;
 
-	public RefGen(long period, int rad) {
+	public RefGen(long period, int deg) {
 		super(period);
-		this.rad = rad;
+		this.deg = deg;
+		mode = 0;
 	}
 	
 	public synchronized double getRef(){
@@ -33,7 +34,7 @@ public class RefGen extends PeriodicThread{
 			setRef(0);
 		}else if(mode == 1){
 			if(getRef() == 0){
-				setRef(rad);
+				setRef(deg * 360);
 			}else{
 				setRef(0);
 			}

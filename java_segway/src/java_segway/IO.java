@@ -1,34 +1,36 @@
 package java_segway;
 
-import se.lth.cs.realtime.PeriodicThread;
+import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
+import lejos.nxt.SensorPort;
+import lejos.nxt.addon.GyroSensor;
 
-public class IO extends PeriodicThread{
-
-	public IO(long arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
+public class IO{
+	NXTRegulatedMotor left = new NXTRegulatedMotor(MotorPort.C);
+	NXTRegulatedMotor right = new NXTRegulatedMotor(MotorPort.B);
+	GyroSensor gyro = new GyroSensor(SensorPort.S2);
+	
+	public IO() {
+		gyro.recalibrateOffset();
 	}
 
-	public double getPos(){
-		return 0;
-		
+	public synchronized double getPos(){
+		return left.getTachoCount();
 	}
 	
-	public double getAngle(){
-		return 0;
+	public synchronized double getAngle(){
+		return gyro.getAngularVelocity();
 	}
 	
-	public void setMotor(double diff){
-		
+	public synchronized void setMotor(double diff){
+		int pos = (int)Math.round(diff);
+		left.rotate(pos, true);
+		right.rotate(pos, true);
 	}
 	
-	public void perform(){
-		
+	public synchronized void reset() {
+		left.resetTachoCount();
+		right.resetTachoCount();
 	}
 
-	public void reset() {
-		// TODO Auto-generated method stub
-		
-	}
 }
