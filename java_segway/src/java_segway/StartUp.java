@@ -7,7 +7,7 @@ public class StartUp {
 		long refPeriod = 10000;
 		long regPeriod = refPeriod/1000;
 		long ioPeriod = regPeriod;
-		int deg = 10;
+		int deg = 3600;
 		IOMonitor ioM = new IOMonitor();
 		RefGen refGen = new RefGen(refPeriod, deg);
 		IO io = new IO(ioPeriod, ioM);

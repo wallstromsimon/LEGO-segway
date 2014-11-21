@@ -20,6 +20,7 @@ public class IO extends Thread{
 		speed = 720;
 		left.setSpeed(speed);
 		right.setSpeed(speed);
+		this.setPriority(7);
 	}
 
 	public synchronized void reset() {
@@ -39,7 +40,7 @@ public class IO extends Thread{
 			ioM.setPos((left.getTachoCount() + right.getTachoCount())/2);
 			
 			//Calc and update angle
-			ioM.setAngle(gyro.getAngularVelocity() * (period/1000));
+			ioM.setAngle((gyro.readValue()-gyro.getAngularVelocity()) * (period/1000));
 			
 			t = t + period;
 			long duration = t - System.currentTimeMillis();

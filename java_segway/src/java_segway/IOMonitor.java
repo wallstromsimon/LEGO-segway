@@ -4,6 +4,12 @@ public class IOMonitor {
 	private double pos;
 	private double ang;
 	private double motor;
+	
+	public IOMonitor(){
+		pos = 0;
+		ang = 0;
+		motor = 0;
+	}
 
 	public synchronized double getPos() {
 		return pos;

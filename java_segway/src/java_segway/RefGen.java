@@ -36,7 +36,7 @@ public class RefGen extends Thread{
 				setRef(0);
 			}else if(mode == 1){
 				if(getRef() == 0){
-					setRef(deg * 360);
+					setRef(deg);
 				}else{
 					setRef(0);
 				}
