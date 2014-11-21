@@ -1,10 +1,9 @@
 package java_segway;
 
-import se.lth.cs.realtime.PeriodicThread;
 
-public class Regul extends PeriodicThread{
+public class Regul extends Thread{
 
-	double h;
+	long period;
 	PIDParam paramInner;
 	PIDParam paramOuter;
 	PIDController inner;
@@ -16,14 +15,14 @@ public class Regul extends PeriodicThread{
 	double uMin = -0.5;
 	double uMax = 0.5;
 	double youter, yinner, ref, uouter, uinner;
-	
+
 	public Regul(long period, RefGen refGen, IO io) {
-		super(period);
+		this.period = period;
 		this.refGen = refGen;
 		this.io = io;
-		h = period/1000;
-		paramInner = new PIDParam(-21.842902173143, -145.039919974658, -0.0179008201129659, 132.805666822822, 1, 1, h);
-		paramOuter = new PIDParam(0.000500351283690184, 5.25273715419508e-06, 0.00554912489042775, 2.9025731973979, 1, 1, h);
+		period = period;
+		paramInner = new PIDParam(-21.842902173143, -145.039919974658, -0.0179008201129659, 132.805666822822, 1, 1, period);
+		paramOuter = new PIDParam(0.000500351283690184, 5.25273715419508e-06, 0.00554912489042775, 2.9025731973979, 1, 1, period);
 		inner = new PIDController(paramInner);
 		outer = new PIDController(paramOuter);
 
@@ -38,18 +37,29 @@ public class Regul extends PeriodicThread{
 		return u;
 	}
 
-	public void perform(){
-		youter = io.getPos();
-		ref = refGen.getRef();
-		yinner = io.getAngle();
+	public void run(){
+		long t = System.currentTimeMillis();
+		while(true){
+			youter = io.getPos();
+			ref = refGen.getRef();
+			yinner = io.getAngle();
 
-		synchronized (outer) {
-			synchronized (inner) {
-				uouter = limit(outer.calculateOutput(youter, ref));
-				uinner = limit(inner.calculateOutput(yinner, uouter));
-				io.setMotor(uinner);
+			synchronized (outer) {
+				synchronized (inner) {
+					uouter = limit(outer.calculateOutput(youter, ref));
+					uinner = limit(inner.calculateOutput(yinner, uouter));
+					io.setMotor(uinner);
+				}
+			}
+			t = t + period;
+			long duration = t - System.currentTimeMillis();
+			if (duration > 0) {
+				try {
+					Thread.sleep(duration);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
-
 	}
 }
