@@ -10,16 +10,16 @@ public class Regul extends Thread{
 	PIDController outer;
 
 	private RefGen refGen;
-	private IO io;
+	private IOMonitor ioM;
 
-	double uMin = -0.5;
-	double uMax = 0.5;
+	double uMin = -100000;
+	double uMax = 100000;
 	double youter, yinner, ref, uouter, uinner;
 
-	public Regul(long period, RefGen refGen, IO io) {
+	public Regul(long period, RefGen refGen, IOMonitor ioM) {
 		this.period = period;
 		this.refGen = refGen;
-		this.io = io;
+		this.ioM = ioM;
 		period = period;
 		paramInner = new PIDParam(-21.842902173143, -145.039919974658, -0.0179008201129659, 132.805666822822, 1, 1, period);
 		paramOuter = new PIDParam(0.000500351283690184, 5.25273715419508e-06, 0.00554912489042775, 2.9025731973979, 1, 1, period);
@@ -40,15 +40,15 @@ public class Regul extends Thread{
 	public void run(){
 		long t = System.currentTimeMillis();
 		while(true){
-			youter = io.getPos();
+			youter = ioM.getPos();
 			ref = refGen.getRef();
-			yinner = io.getAngle();
+			yinner = ioM.getAngle();
 
 			synchronized (outer) {
 				synchronized (inner) {
 					uouter = limit(outer.calculateOutput(youter, ref));
 					uinner = limit(inner.calculateOutput(yinner, uouter));
-					io.setMotor(uinner);
+					ioM.setMotor(uinner);
 				}
 			}
 			t = t + period;
