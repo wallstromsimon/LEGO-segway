@@ -3,33 +3,30 @@ package java_segway;
 public class IOMonitor {
 	private double pos;
 	private double ang;
-	private double mot;
+	private double motor;
 
 	public synchronized double getPos() {
-		// TODO Auto-generated method stub
-		return 0;
+		return pos;
 	}
 	
-	public synchronized void setPos() {
-		// TODO Auto-generated method stub
+	public synchronized void setPos(double pos) {
+		this.pos = pos;
 	}
 
 	public synchronized double getAngle() {
-		// TODO Auto-generated method stub
-		return 0;
+		return ang;
 	}
 	
-	public synchronized void setAngle() {
-		// TODO Auto-generated method stub
+	public synchronized void setAngle(double ang) {
+		this.ang += ang;
 	}
 
-	public synchronized void setMotor(double uinner) {
-		// TODO Auto-generated method stub
+	public synchronized double getMotor() {
+		return motor;
 	}
 	
-	public synchronized double getMotor() {
-		// TODO Auto-generated method stub
-		return 0;
+	public synchronized void setMotor(double diff) {
+		this.motor = diff;
 	}
 
 }

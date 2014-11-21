@@ -20,7 +20,7 @@ public class Regul extends Thread{
 		this.period = period;
 		this.refGen = refGen;
 		this.ioM = ioM;
-		period = period;
+		this.period = period;
 		paramInner = new PIDParam(-21.842902173143, -145.039919974658, -0.0179008201129659, 132.805666822822, 1, 1, period);
 		paramOuter = new PIDParam(0.000500351283690184, 5.25273715419508e-06, 0.00554912489042775, 2.9025731973979, 1, 1, period);
 		inner = new PIDController(paramInner);

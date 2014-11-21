@@ -1,6 +1,5 @@
 package java_segway;
 
-import lejos.nxt.Button;
 
 public class StartUp {
 	

@@ -9,25 +9,13 @@ import lejos.nxt.addon.GyroSensor;
 public class Test {
 
 	public static void main(String[] args) {
-		NXTRegulatedMotor left = new NXTRegulatedMotor(MotorPort.C);
-		GyroSensor gyro = new GyroSensor(SensorPort.S2);
-
-		gyro.recalibrateOffset();
+		IOMonitor m = new IOMonitor();
+		IO io = new IO(10, m);
+		io.start();
 		while(true){
-			System.out.println(gyro.getAngularVelocity());
-			System.out.println(gyro.readValue());
+			System.out.println(m.getAngle());
 			Button.waitForAnyPress();
 		}
-		//left.setSpeed(720);
-
-		//		System.out.println(left.getTachoCount());
-		//		left.rotate(360);
-		//		System.out.println(left.getTachoCount());
-		//		left.rotate(-360);
-		//		System.out.println(left.getTachoCount());
-		//		left.rotate(460);
-		//		System.out.println(left.getTachoCount());
-		
 	}
 
 }

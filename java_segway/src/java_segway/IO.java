@@ -22,21 +22,6 @@ public class IO extends Thread{
 		right.setSpeed(speed);
 	}
 
-	public synchronized double getPos(){
-		return left.getTachoCount();
-	}
-
-	public synchronized double getAngle(){
-		return gyro.getAngularVelocity();
-	}
-
-	public synchronized void setMotor(double diff){
-		int pos = (int)Math.round(diff);
-		System.out.println(pos);
-		left.rotate(pos, true);
-		right.rotate(pos, true);
-	}
-
 	public synchronized void reset() {
 		left.resetTachoCount();
 		right.resetTachoCount();
@@ -45,8 +30,16 @@ public class IO extends Thread{
 	public void run(){
 		long t = System.currentTimeMillis();
 		while(true){
+			//Set motor
+			int pos = (int)Math.round(ioM.getMotor());
+			left.rotate(pos, true);
+			right.rotate(pos, true);
 			
+			//Update pos
+			ioM.setPos((left.getTachoCount() + right.getTachoCount())/2);
 			
+			//Calc and update angle
+			ioM.setAngle(gyro.getAngularVelocity() * (period/1000));
 			
 			t = t + period;
 			long duration = t - System.currentTimeMillis();
