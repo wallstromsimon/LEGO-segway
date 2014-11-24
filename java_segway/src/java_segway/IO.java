@@ -3,6 +3,7 @@ package java_segway;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.SensorPort;
+import lejos.nxt.addon.GyroDirectionFinder;
 import lejos.nxt.addon.GyroSensor;
 
 public class IO extends Thread{
@@ -12,11 +13,13 @@ public class IO extends Thread{
 	private int speed;
 	private long period;
 	IOMonitor ioM;
+	GyroDirectionFinder gdf;
 
 	public IO(long period, IOMonitor ioM) {
 		this.period = period;
 		this.ioM = ioM;
-		gyro.recalibrateOffset();
+		gdf = new GyroDirectionFinder(gyro, true);
+//		gyro.recalibrateOffset();
 		speed = 720;
 		left.setSpeed(speed);
 		right.setSpeed(speed);
@@ -40,7 +43,8 @@ public class IO extends Thread{
 			ioM.setPos((left.getTachoCount() + right.getTachoCount())/2);
 			
 			//Calc and update angle
-			ioM.setAngle((gyro.readValue()-gyro.getAngularVelocity()) * (period/1000));
+//			ioM.setAngle((gyro.readValue()-gyro.getAngularVelocity()) * (period/1000));
+			ioM.setAngle(gdf.getDegrees());
 			
 			t = t + period;
 			long duration = t - System.currentTimeMillis();

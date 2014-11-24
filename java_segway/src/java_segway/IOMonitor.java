@@ -24,7 +24,7 @@ public class IOMonitor {
 	}
 	
 	public synchronized void setAngle(double ang) {
-		this.ang += ang;
+		this.ang = ang;
 	}
 
 	public synchronized double getMotor() {
