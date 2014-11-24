@@ -1,6 +1,7 @@
 package java_segway;
 
 import lejos.nxt.Button;
+import lejos.nxt.Motor;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.SensorPort;
@@ -11,10 +12,15 @@ public class Test {
 
 	public static void main(String[] args) {
 		IOMonitor m = new IOMonitor();
-		IO io = new IO(10, m);
-		io.start();
+//		IO io = new IO(10, m);
+//		io.start();
+		RefGen ref = new RefGen(1000, 3600, 0);
+		Regul r = new Regul(10, ref, m);
+		r.start();
 		while(true){
-			System.out.println(m.getAngle());
+			m.setAngle(-2);
+			m.setPos(0);
+			System.out.println(m.getMotor());
 			Button.waitForAnyPress();
 		}
 	}

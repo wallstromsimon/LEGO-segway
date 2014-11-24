@@ -5,11 +5,11 @@ public class StartUp {
 	
 	public static void main(String[] args){
 		long refPeriod = 10000;
-		long regPeriod = refPeriod/1000;
-		long ioPeriod = regPeriod;
+		long regPeriod = 10;
+		long ioPeriod = 10;
 		int deg = 3600;
 		IOMonitor ioM = new IOMonitor();
-		RefGen refGen = new RefGen(refPeriod, deg);
+		RefGen refGen = new RefGen(refPeriod, deg, 0);
 		IO io = new IO(ioPeriod, ioM);
 		Regul regul = new Regul(regPeriod, refGen, ioM);
 		

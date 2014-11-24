@@ -7,10 +7,10 @@ public class RefGen extends Thread{
 	private int deg;
 	long period;
 
-	public RefGen(long period, int deg) {
+	public RefGen(long period, int deg, int mode) {
 		this.period = period;
 		this.deg = deg;
-		mode = 0;
+		this.mode = mode;
 	}
 
 	public synchronized double getRef(){

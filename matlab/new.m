@@ -1,9 +1,9 @@
 %param
 Jw = 1.6e-05;  % (kg*m^2) Wheel inertia
-Rw = 0.0310; % (meters)  Radius of wheel
+Rw = 0.0420; % (meters)  Radius of wheel, 0.08 for the big
 L = 0.0950; % (meters)  Length from wheel to body mass.
-mb = 0.5910; % (kg) body mass
-mw = 0.034; % (kg) combined mass of BOTH wheels
+mb = 0.5120; % (kg) body mass
+mw = 0.031; % (kg) combined mass of BOTH wheels
 Jb = 0.0019; % (kg*m^2) Body inertia
 b = 0.062; % damping factor (approximate!)
 g = 9.81;  % (m/s^2) gravity
