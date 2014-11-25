@@ -21,8 +21,8 @@ public class IO extends Thread{
 		System.out.println("Calibrating");
 		gyro.recalibrateOffset();
 		speed = 400;
-		left.setAcceleration(10000);
-		right.setAcceleration(10000);
+//		left.setAcceleration(10000);
+//		right.setAcceleration(10000);
 		left.setSpeed(speed);
 		right.setSpeed(speed);
 		left.resetTachoCount();
@@ -40,20 +40,24 @@ public class IO extends Thread{
 	public void run(){
 		long t = System.currentTimeMillis();
 		long duration;
-		double degreesPerSecond, secondsSinceLastReading;
+		double degreesPerSecond, secondsSinceLastReading, smoothedValue;
 		long lastUpdate;
 		long now = System.currentTimeMillis();
+		
+		int last = 0, curr;
+		
 		double EMAOFFSET = 0.0005;
-		double gOffset = 0;
+		double gOffset = 1;
 		angle = 0;
+		smoothedValue = 0;
 
 		int pos;
 		while(true){
 			//Set motor
 			pos = (int)(Math.round(ioM.getMotor()));
-			speed = Math.abs(pos/23);
-			left.setSpeed(speed);
-			right.setSpeed(speed);
+//			speed = Math.abs(pos/23);
+//			left.setSpeed(speed);
+//			right.setSpeed(speed);
 			left.rotate(pos, true);
 			right.rotate(pos, true);
 
@@ -80,7 +84,18 @@ public class IO extends Thread{
 			degreesPerSecond = degreesPerSecond - gOffset; // Angular velocity (degrees/sec)
 
 			secondsSinceLastReading = (now - lastUpdate) * .001f;
+			
+			//lowpass?
+//			smoothedValue += (degreesPerSecond - smoothedValue)/111;
+//			smoothedValue += (newValue - smoothedValue) / smoothing
+			
+			
 			angle += degreesPerSecond * secondsSinceLastReading;
+			
+			curr = (int)Math.round(angle*10);
+			angle = curr==last ? 0 : angle;
+			last = curr;
+			
 			ioM.setAngle(angle);
 
 			t = t + period;
