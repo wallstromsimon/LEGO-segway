@@ -12,15 +12,15 @@ public class Test {
 
 	public static void main(String[] args) {
 		IOMonitor m = new IOMonitor();
-		IO io = new IO(5, m);
-		io.start();
-//		RefGen ref = new RefGen(1000, 3600, 0);
-//		Regul r = new Regul(10, ref, m);
-//		r.start();
-		while(true){
-//			m.setAngle(-2);
-//			m.setPos(0);
-			System.out.println(m.getAngle());
+//		IO io = new IO(5, m);
+//		io.start();
+		RefGen ref = new RefGen(1000, 3600, 0);
+		Regul r = new Regul(10, ref, m);
+		r.start();
+		while(!Button.ESCAPE.isDown()){
+			m.setAngle(-1);
+			m.setPos(0);
+			System.out.println(m.getMotor());
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {

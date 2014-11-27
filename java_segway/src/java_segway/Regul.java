@@ -1,5 +1,7 @@
 package java_segway;
 
+import lejos.nxt.Button;
+
 
 public class Regul extends Thread{
 
@@ -40,7 +42,7 @@ public class Regul extends Thread{
 	public void run(){
 		long t = System.currentTimeMillis();
 		long duration;
-		while(true){
+		while(!Button.ESCAPE.isDown()){
 
 
 			synchronized (ioM) {

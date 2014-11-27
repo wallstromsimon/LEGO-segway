@@ -1,5 +1,7 @@
 package java_segway;
 
+import lejos.nxt.Button;
+
 
 public class RefGen extends Thread{
 	private double ref;
@@ -31,7 +33,7 @@ public class RefGen extends Thread{
 
 	public void run(){
 		long t = System.currentTimeMillis();
-		while(true){
+		while(!Button.ESCAPE.isDown()){
 			if(mode == 0){
 				setRef(0);
 			}else if(mode == 1){
