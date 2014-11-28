@@ -22,7 +22,7 @@ public class IO extends Thread{
 		this.ioM = ioM;
 		System.out.println("Calibrating");
 
-		speed = 800;
+		speed = 350;
 		left.setAcceleration(8000);
 		right.setAcceleration(8000);
 		left.setSpeed(speed);
@@ -60,14 +60,14 @@ public class IO extends Thread{
 				
 		while(!Button.ESCAPE.isDown()){
 			//Set motor
-			//			double angle2 = ioM.getAngle();
-			//			left.setAcceleration((int)Math.round(angle2 * 1000));
-			//			right.setAcceleration((int)Math.round(angle2 * 1000));
-
 			pos = (int)(Math.round(ioM.getMotor()));
-			System.out.println(pos);
-			left.rotate(pos, true);
-			right.rotate(pos, true);
+			if(Math.abs(pos)>500){
+				left.rotate(pos, true);
+				right.rotate(pos, true);
+			}else{
+				left.flt();
+				right.flt();
+			}
 			
 			//Update pos
 			ioM.setPos((left.getTachoCount() + right.getTachoCount())/2);
@@ -77,9 +77,9 @@ public class IO extends Thread{
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAng = angVel * (double)period/1000;
 			acc.getAllAccel(accData, 0);
-			accAng = Math.atan2(accData[2], accData[0])*rad2deg;
+			accAng = -Math.atan2(accData[2], accData[0])*rad2deg;
 			angle = (angle + gyroAng) * 0.92 + accAng * 0.08;
-			ioM.setAngle(-angle);
+			ioM.setAngle(angle);
 			
 			t = t + period;
 			duration = t - System.currentTimeMillis();
@@ -89,6 +89,8 @@ public class IO extends Thread{
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+			} else{
+				System.out.println(duration-period);
 			}
 		}
 
