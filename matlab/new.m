@@ -46,4 +46,4 @@ ss_open=ss(A,B,C,D); %cont
 h = 0.01;
 H = c2d(ss_open, h);
 
-[A2, B2, C2, D2] = ssdata(H)
+[A2, B2, C2, D2] = ssdata(H);
