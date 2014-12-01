@@ -9,6 +9,7 @@ import lejos.nxt.addon.AccelHTSensor;
 import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
 
+
 public class IO extends Thread{
 	NXTMotor left = new NXTMotor(MotorPort.C);
 	NXTMotor right = new NXTMotor(MotorPort.B);
