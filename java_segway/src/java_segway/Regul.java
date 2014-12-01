@@ -14,8 +14,8 @@ public class Regul extends Thread{
 	private RefGen refGen;
 	private IOMonitor ioM;
 
-	double uMin = -100000;
-	double uMax = 100000;
+	double uMin = -100;
+	double uMax = 100;
 	double youter, yinner, ref, uouter, uinner;
 
 	public Regul(long period, RefGen refGen, IOMonitor ioM) {
@@ -23,8 +23,8 @@ public class Regul extends Thread{
 		this.refGen = refGen;
 		this.ioM = ioM;
 		this.period = period;
-		paramInner = new PIDParam(-16.7792819869313, -106.029027583105, -0.0258879740182201, 130.717571074188, 1, 1, period);
-		paramOuter = new PIDParam(0.000754332462460638, 7.9250040069361e-06, 0.00820996434126155, 2.9025731973979, 1, 1, period);
+		paramInner = new PIDParam(-7.34137741596504, -44.6834487503629, -0.0504302228504053, 28.7822625226348, 1, 1, period);
+		paramOuter = new PIDParam(0.00205773648435991, 3.50732954404154e-05, 0.00998848510035523, 5.41093442969671, 1, 1, period);
 		inner = new PIDController(paramInner);
 		outer = new PIDController(paramOuter);
 
@@ -43,8 +43,6 @@ public class Regul extends Thread{
 		long t = System.currentTimeMillis();
 		long duration;
 		while(!Button.ESCAPE.isDown()){
-
-
 			synchronized (ioM) {
 				youter = ioM.getPos();
 				ref = 0;//refGen.getRef();

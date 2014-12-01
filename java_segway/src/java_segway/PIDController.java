@@ -13,13 +13,13 @@ public class PIDController {
 		
 	}
 	
-	public synchronized double calculateOutput(double y, double yref){
+	public double calculateOutput(double y, double yref){
 		e = yref - y;
 		v = p.P * p.b * e + p.I * p.H * e + p.D * p.N/(1 + p.N * p.H) * p.c * e;
 		return v;
 	}
 	
-	public synchronized long getHMillis(){
+	public long getHMillis(){
 		return (long)(p.H * 1000.0);
 	}
 }
