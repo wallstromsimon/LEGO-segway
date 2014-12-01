@@ -6,10 +6,11 @@ import java.io.IOException;
 
 import lejos.nxt.SensorPort;
 import lejos.nxt.addon.AccelHTSensor;
+import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
 
 public class SensordataToFile {
-	static final String fileName = "data.txt";
+	static final String fileName = "data2.txt";
 	static String text;
 	static byte[] byteText;
 	static FileOutputStream fos;
@@ -18,7 +19,7 @@ public class SensordataToFile {
 
 	public static void main(String[] args) throws IOException, InterruptedException{
 		GyroSensor gyro = new GyroSensor(SensorPort.S2);
-		AccelHTSensor acc = new AccelHTSensor(SensorPort.S3);
+		AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
 		sb = new StringBuffer();
 		f = new File(fileName);
 		fos = new  FileOutputStream(f);
@@ -32,7 +33,7 @@ public class SensordataToFile {
 			gyroData = gyro.getAngularVelocity();
 			acc.getAllAccel(accData, 0);
 
-			sb.append(gyroData + "   " + accData[0] + "   " + accData[2] + "\n");
+			sb.append(gyroData + "   " + (accData[0]) + "   " + (-accData[1]) + "\n");
 			Thread.sleep(50);
 		}
 		System.out.println("Saving file...");

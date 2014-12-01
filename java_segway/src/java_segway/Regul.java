@@ -42,7 +42,7 @@ public class Regul extends Thread{
 	public void run(){
 		long t = System.currentTimeMillis();
 		long duration;
-		while(!Button.ESCAPE.isDown()){
+		while(!isInterrupted()){
 			synchronized (ioM) {
 				youter = ioM.getPos();
 				ref = 0;//refGen.getRef();

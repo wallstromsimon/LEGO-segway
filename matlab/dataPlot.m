@@ -1,4 +1,4 @@
-data = load('data1.txt'); %load raw data
+data = load('data2.txt'); %load raw data
 
 %data(x,1) angular velocity
 %data(x,2) accelerometer x-value
@@ -21,7 +21,7 @@ end
 %Angle from accelerometer, red in plot
 accAngle = zeros(datapoints,1);
 for x = 1:datapoints
-    accAngle(x,1) = -atan2(data(x,3),data(x,2))*180/pi;
+    accAngle(x,1) = -atan2(data(x,3),data(x,2))*180/pi+93;
 end
 
 %Final angle using both gyro and acc, green in plot
@@ -32,7 +32,7 @@ for x = 2:datapoints
        data(x,1) = 0;
     end
     gyroangle = data(x,1) * interval;
-    accangle = -atan2(data(x,3),data(x,2))*180/pi;
+    accangle = -atan2(data(x,3),data(x,2))*180/pi+93;
     angle(x,1) = (angle(x-1,1) + gyroangle) * 0.92 + accangle*0.08;
 end
 

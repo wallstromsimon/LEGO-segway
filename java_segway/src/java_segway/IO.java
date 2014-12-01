@@ -66,11 +66,7 @@ public class IO extends Thread{
 			pos = (int)(Math.round(ioM.getMotor()));
 			power = Math.abs(pos);
 			
-			if(power < 5){
-				left.flt();
-				right.flt();
-			}
-			else if(pos < 0){
+			if(pos < 0){
 				left.backward();
 				right.backward();
 			}else{
@@ -90,9 +86,9 @@ public class IO extends Thread{
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAng = angVel * (double)period/1000;
-			accX = -acc.getXAccel();
+			accX = acc.getXAccel();
 			accY = -acc.getYAccel();
-			accAng = -Math.atan2(accY, accX)*rad2deg;
+			accAng = -Math.atan2(accY, accX)*rad2deg+94;
 			angle = (angle + gyroAng) * 0.92 + accAng * 0.08;
 			ioM.setAngle(angle*deg2rad);
 
