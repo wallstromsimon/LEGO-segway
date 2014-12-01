@@ -6,13 +6,14 @@ import lejos.nxt.NXTMotor;
 import lejos.nxt.NXTRegulatedMotor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.addon.AccelHTSensor;
+import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
 
 public class IO extends Thread{
 	NXTMotor left = new NXTMotor(MotorPort.C);
 	NXTMotor right = new NXTMotor(MotorPort.B);
 	GyroSensor gyro = new GyroSensor(SensorPort.S2);
-	AccelHTSensor acc = new AccelHTSensor(SensorPort.S3);
+	AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
 
 //	private int speed;
 	private long period;
@@ -52,8 +53,8 @@ public class IO extends Thread{
 		double gyroAng = 0;
 		double accAng = 0;
 		double angle = 0;
-		int accX, accZ;
-		int pos;
+		int accX, accY;
+		int pos, power;
 
 		double rad2deg = 180/Math.PI;
 		double deg2rad = Math.PI/180;
@@ -62,36 +63,35 @@ public class IO extends Thread{
 			
 			//Set motor
 			pos = (int)(Math.round(ioM.getMotor()));
+			power = Math.abs(pos);
 			
-			if(pos < 5 || pos > -5){
+			if(power < 5){
 				left.flt();
 				right.flt();
-			}else if(pos < 0){
+			}
+			else if(pos < 0){
 				left.backward();
 				right.backward();
-				left.setPower(-pos);
-				right.setPower(-pos);
 			}else{
 				left.forward();
 				right.forward();
-				left.setPower(pos);
-				right.setPower(pos);
 			}
-			
-			
+			left.setPower(power);
+			right.setPower(power);
+
 //			left.rotate(pos, true);
 //			right.rotate(pos, true);
 
 			//Update pos
-			ioM.setPos(left.getTachoCount()*deg2rad);
+			ioM.setPos((left.getTachoCount()+right.getTachoCount())/2*deg2rad);
 
 			//Calc and update angle
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAng = angVel * (double)period/1000;
-			accX = acc.getXAccel();
-			accZ = acc.getZAccel();
-			accAng = -Math.atan2(accZ, accX)*rad2deg;
+			accX = -acc.getXAccel();
+			accY = -acc.getYAccel();
+			accAng = -Math.atan2(accY, accX)*rad2deg;
 			angle = (angle + gyroAng) * 0.92 + accAng * 0.08;
 			ioM.setAngle(angle*deg2rad);
 
