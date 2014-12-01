@@ -1,13 +1,11 @@
 package java_segway;
 
-import lejos.nxt.Button;
-
-
 public class RefGen extends Thread{
 	private double ref;
 	private int mode;
 	private int deg;
-	long period;
+	private long period;
+	private boolean run = true;
 
 	public RefGen(long period, int deg, int mode) {
 		this.period = period;
@@ -30,17 +28,21 @@ public class RefGen extends Thread{
 	public synchronized int getMode(){
 		return mode;
 	}
+	
+	public void kill(){
+		run = false;
+	}
 
 	public void run(){
 		long t = System.currentTimeMillis();
-		while(!Button.ESCAPE.isDown()){
+		while(run){
 			if(mode == 0){
 				setRef(0);
 			}else if(mode == 1){
-				if(getRef() == 0){
-					setRef(deg);
-				}else{
+				if(getRef() == deg){
 					setRef(0);
+				}else{
+					setRef(deg);
 				}
 			}
 			t = t + period;

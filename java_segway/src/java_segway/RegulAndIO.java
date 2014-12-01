@@ -1,5 +1,10 @@
 package java_segway;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import lejos.nxt.Button;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
@@ -24,16 +29,25 @@ public class RegulAndIO extends Thread{
 	double uMin = -100;
 	double uMax = 100;
 	
+	private boolean run = true;
+	
+	private StringBuffer sb = new StringBuffer();
+	
 
 	public RegulAndIO(long period, RefGen refGen) {
 		this.period = period;
 		this.refGen = refGen;
 		this.period = period;
-		paramInner = new PIDParam(-7.34137741596504, -44.6834487503629, -0.0504302228504053, 28.7822625226348, 1, 1, period);
-		paramOuter = new PIDParam(0.00205773648435991, 3.50732954404154e-05, 0.00998848510035523, 5.41093442969671, 1, 1, period);
+		//small wheels
+//		paramInner = new PIDParam(-7.34137741596504, -44.6834487503629, -0.0504302228504053, 28.7822625226348, 1, 1, period);
+//		paramOuter = new PIDParam(0.00205773648435991, 3.50732954404154e-05, 0.00998848510035523, 5.41093442969671, 1, 1, period);
+		//large wheeeeeels
+		paramInner = new PIDParam(-6.92923062646862, -63.5246453819423, -0.035069063847957, 35.5500518706848, 1, 1, period);
+		paramOuter = new PIDParam(0.00206187887900374, 2.09062324049099e-05, 0.0191551192258251, 2.67761009467029, 1, 1, period);
 		inner = new PIDController(paramInner);
 		outer = new PIDController(paramOuter);
 
+		System.out.println("Calibrating...");
 		left.stop();
 		right.stop();
 		left.resetTachoCount();
@@ -53,6 +67,28 @@ public class RegulAndIO extends Thread{
 		} 
 		return u;
 	}
+	
+	public void kill(){
+		run = false;
+	}
+	
+	public void saveToFile(){
+		File f = new File("livedata.txt");
+		FileOutputStream fos;
+		try {
+			fos = new  FileOutputStream(f);
+			fos.write(sb.toString().getBytes());
+			fos.close();
+			System.out.println("Saved");
+			Thread.sleep(2000);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void run(){
 		long t = System.currentTimeMillis();
@@ -69,10 +105,11 @@ public class RegulAndIO extends Thread{
 
 		double rad2deg = 180/Math.PI;
 		double deg2rad = Math.PI/180;
+		long counter = 0;
 
-		while(!isInterrupted()){
+		while(run){
 			youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
-			ref = 0; //refGen.getRef();
+			ref = 0;//refGen.getRef();
 			uouter = outer.calculateOutput(youter, ref);
 			
 			angVel = gyro.getAngularVelocity();	
@@ -80,9 +117,9 @@ public class RegulAndIO extends Thread{
 			gyroAng = angVel * (double)period/1000;
 			accX = acc.getXAccel();
 			accY = -acc.getYAccel();
-			accAng = -Math.atan2(accY, accX)*rad2deg+92;
+			accAng = -Math.atan2(accY, accX)*rad2deg+90;
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
-			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner*deg2rad, uouter)*1.5)));
+			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner*deg2rad, uouter))));
 			
 			power = Math.abs(uinner);
 
@@ -99,6 +136,10 @@ public class RegulAndIO extends Thread{
 			left.setPower(power);
 			right.setPower(power);
 			
+//			if(counter%20==0 && counter <= 2000){
+//				sb.append(uinner + " " + youter+"\n");
+//			}
+			
 			t = t + period;
 			duration = t - System.currentTimeMillis();
 			if (duration > 0) {
@@ -111,5 +152,6 @@ public class RegulAndIO extends Thread{
 				System.out.println("oops: " + (duration-period));
 			}
 		}
+//		saveToFile();
 	}
 }

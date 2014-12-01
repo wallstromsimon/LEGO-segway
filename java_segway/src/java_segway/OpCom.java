@@ -10,8 +10,8 @@ public class OpCom{
 			@Override
 			public void buttonPressed(Button b) {
 				System.out.println("EXIT");
-				reg.interrupt();
-				refGen.interrupt();
+				reg.kill();
+				refGen.kill();
 			}
 
 			@Override

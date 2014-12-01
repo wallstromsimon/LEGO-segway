@@ -5,14 +5,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import lejos.nxt.SensorPort;
-import lejos.nxt.addon.AccelHTSensor;
 import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
 
 public class SensordataToFile {
 	static final String fileName = "data2.txt";
 	static String text;
-	static byte[] byteText;
 	static FileOutputStream fos;
 	static File f;
 	static StringBuffer sb;

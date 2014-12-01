@@ -1,6 +1,6 @@
 %param
 Jw = 1.6e-05;  % (kg*m^2) Wheel inertia
-Rw = 0.0420; % (meters)  Radius of wheel, 0.08 for the big
+Rw = 0.08; % (meters)  Radius of wheel, 0.08 for the big
 L = 0.0950; % (meters)  Length from wheel to body mass.
 mb = 0.5120; % (kg) body mass
 mw = 0.031; % (kg) combined mass of BOTH wheels
@@ -43,7 +43,7 @@ X0 = [0 15*pi/180 0 0]';
 % State Space for the open-loop system
 ss_open=ss(A,B,C,D); %cont
 
-h = 0.025;
+h = 0.020;
 H = c2d(ss_open, h);
 
 [A2, B2, C2, D2] = ssdata(H);
