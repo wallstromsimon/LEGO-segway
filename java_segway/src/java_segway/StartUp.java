@@ -5,8 +5,8 @@ public class StartUp {
 	
 	public static void main(String[] args){
 		long refPeriod = 10000;
-		long regPeriod = 20;
-		long ioPeriod = 25;
+		long regPeriod = 15;
+//		long ioPeriod = 25;
 		int deg = 60;
 //		IOMonitor ioM = new IOMonitor();
 		RefGen refGen = new RefGen(refPeriod, deg, 1);

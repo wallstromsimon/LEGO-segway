@@ -22,7 +22,7 @@ public class RegulAndIO extends Thread{
 	PIDParam paramInner;
 	PIDParam paramOuter;
 	PIDController inner;
-	PIDController outer;
+//	PIDController outer;
 
 	private RefGen refGen;
 
@@ -42,10 +42,10 @@ public class RegulAndIO extends Thread{
 //		paramInner = new PIDParam(-7.34137741596504, -44.6834487503629, -0.0504302228504053, 28.7822625226348, 1, 1, period);
 //		paramOuter = new PIDParam(0.00205773648435991, 3.50732954404154e-05, 0.00998848510035523, 5.41093442969671, 1, 1, period);
 		//large wheeeeeels
-		paramInner = new PIDParam(-6.92923062646862, -63.5246453819423, -0.035069063847957, 35.5500518706848, 1, 1, period);
-		paramOuter = new PIDParam(0.00206187887900374, 2.09062324049099e-05, 0.0191551192258251, 2.67761009467029, 1, 1, period);
+		paramInner = new PIDParam(-5.59742593599389, -25.8968352597231, -0.0362071180970776, 39.0565692593311, 1, 1, period);
+//		paramOuter = new PIDParam(0.00206187887900374, 2.09062324049099e-05, 0.0191551192258251, 2.67761009467029, 1, 1, period);
 		inner = new PIDController(paramInner);
-		outer = new PIDController(paramOuter);
+//		outer = new PIDController(paramOuter);
 
 		System.out.println("Calibrating...");
 		left.stop();
@@ -97,7 +97,7 @@ public class RegulAndIO extends Thread{
 		double angVel = 0;
 		double gyroAng = 0;
 		double accAng = 0;
-		int accX, accY;
+		int[] accV = new int[3];
 		int power;
 		
 		double youter, yinner = 0, ref, uouter;
@@ -108,22 +108,23 @@ public class RegulAndIO extends Thread{
 		long counter = 0;
 
 		while(run){
-			youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
+//			youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
 			ref = 0;//refGen.getRef();
-			uouter = outer.calculateOutput(youter, ref);
+//			uouter = outer.calculateOutput(youter, ref);
 			
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAng = angVel * (double)period/1000;
-			accX = acc.getXAccel();
-			accY = -acc.getYAccel();
-			accAng = -Math.atan2(accY, accX)*rad2deg+90;
+			acc.getAllAccel(accV, 0);
+			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
-			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner*deg2rad, uouter))));
+			uinner = (int)(Math.round(limit(4*inner.calculateOutput(yinner*deg2rad, ref))));//uouter
 			
 			power = Math.abs(uinner);
-
-			if(power<4){
+			left.setPower(power);
+			right.setPower(power);
+			
+			if(power < 40){
 				left.flt();
 				right.flt();
 			}else if(uinner < 0){
@@ -133,12 +134,12 @@ public class RegulAndIO extends Thread{
 				left.forward();
 				right.forward();
 			}
-			left.setPower(power);
-			right.setPower(power);
+			
 			
 //			if(counter%20==0 && counter <= 2000){
 //				sb.append(uinner + " " + youter+"\n");
 //			}
+//			counter++;
 			
 			t = t + period;
 			duration = t - System.currentTimeMillis();
