@@ -8,7 +8,6 @@ public class Test3 {
 		BTLog bt = new BTLog(period);
 		
 		bt.start();
-		System.out.println("död åt Tengil");
 	}
 
 }

@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import javax.bluetooth.RemoteDevice;
+
 import lejos.nxt.Button;
 import lejos.nxt.comm.*;
 
@@ -32,15 +34,17 @@ public void run(){
 //	DataOutputStream dos2 = new DataOutputStream(fos);
 //	DataInputStream dis = connection.openDataInputStream();
 	
-	System.out.println("Logging starting..");
-	
-	NXTConnection connection = Bluetooth.waitForConnection();
+	System.out.println("Trying to connect..");
+//	RemoteDevice rd = Bluetooth.getKnownDevice("NXT");
+//	BTConnection btc = Bluetooth.connect(rd);
+	BTConnection connection = Bluetooth.waitForConnection();
+	System.out.println("connected");
 	DataOutputStream dos = connection.openDataOutputStream();
 	
 	System.out.println("after conn estbl.");
 	
 	for(int i = 0; i < 10; i++){
-		System.out.println("Inside loop");
+		System.out.println("Logging started");
 		pos = 1;
 		try {
 			dos.writeInt(pos);
