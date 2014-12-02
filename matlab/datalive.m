@@ -1,3 +1,4 @@
 data = load('livedata.txt');
 
-plot(data)
+plot(data,'*-')
+grid
