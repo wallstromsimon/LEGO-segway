@@ -28,21 +28,28 @@ Jonathan Karlsson, xXx@student.lu.se}
 \tableofcontents
 \newpage
 \section{Introduction}
+The goal of this project is to build and control a two-wheeled robot - a Lego Segway - using NXT Lego Mindstorm 2.0. A segway is an unstable system that constantly has to be regulated to work. To regulate this system several parameters is required. It is important to know the mass and specifications of the hardware that is used and the physics and movements in the system. Basically how it works is that the the robot tilts and the angle is measured. Thereafter the angle is processed by the controller to calculate the required change in degree for the wheels. It is possible to control the segway in a few different ways. One way is to use pole placing and feedback control. Even though this is a good way to regulate the system it is hard to realize. Therefore the structure that will be described in this report uses two PID controllers, one for the wheel position and one for the angle of the robot.
 
 
 \section{Program structure}
+The program uses threads to realize a real time controlled system. 
 
 
 \section{Control design}
-
+As mentioned in the introduction the controller will contain two PID-controllers. They are connected in a cascade to regulate the two angles, tilt angle and wheel angle. The inner loop controls the tilt angle and the outer controls the wheel movement. 
 
 \section{User information}
+The segway does not have a user interface except the small screen and the buttons on the front of the base unit. When the segway is in motion these become a rather impractical way of controlling the system. Therefore the system is started before it is put down. It is however possible to change mode with the buttons from stand still mode and a mode that changes the reference value to make the robot move forward and backward. The monitor give small messages to inform the user how to handle the robot and what is happening in the system.
 
+The program should be pre-installed on the machine.
 
 \section{Results}
+Inget funkar.
 
 
 \section{Conclution}
+Fuck everything, LEGO isn’t funny anymore :(
+
 
 \end{document}                  % Slut på dokumentet
 
