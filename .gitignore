@@ -4,6 +4,14 @@
 *.nxj
 *.nxd
 
+# LaTeX stuff #
+###############
+*.aux
+*.log
+*.out
+*.toc
+*.gz
+
 # Compiled source #
 ###################
 *.com
