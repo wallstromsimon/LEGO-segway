@@ -32,14 +32,14 @@ public void run(){
 //	}catch(FileNotFoundException e){		
 //	}
 //	DataOutputStream dos2 = new DataOutputStream(fos);
-//	DataInputStream dis = connection.openDataInputStream();
 	
 	System.out.println("Trying to connect..");
-//	RemoteDevice rd = Bluetooth.getKnownDevice("NXT");
-//	BTConnection btc = Bluetooth.connect(rd);
-	BTConnection connection = Bluetooth.waitForConnection();
+	RemoteDevice rd = Bluetooth.getKnownDevice("NXT");
+	BTConnection connection = Bluetooth.connect(rd);
+//	BTConnection connection = Bluetooth.waitForConnection();
 	System.out.println("connected");
 	DataOutputStream dos = connection.openDataOutputStream();
+	DataInputStream dis = connection.openDataInputStream();
 	
 	System.out.println("after conn estbl.");
 	
@@ -94,6 +94,7 @@ public void run(){
 	}
 	try {
 		dos.close();
+		dis.close();
 	} catch (IOException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();

@@ -106,7 +106,7 @@ public class RegulAndIO extends Thread{
 		double rad2deg = 180/Math.PI;
 		double deg2rad = Math.PI/180;
 		long counter = 0;
-
+		
 		while(run){
 //			youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
 			ref = 0;//refGen.getRef();
@@ -134,7 +134,6 @@ public class RegulAndIO extends Thread{
 				left.forward();
 				right.forward();
 			}
-			
 			
 //			if(counter%20==0 && counter <= 2000){
 //				sb.append(uinner + " " + youter+"\n");
