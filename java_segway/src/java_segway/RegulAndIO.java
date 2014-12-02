@@ -68,7 +68,7 @@ public class RegulAndIO extends Thread{
 		return u;
 	}
 	
-	public void kill(){
+	public synchronized void kill(){
 		run = false;
 	}
 	
@@ -115,7 +115,7 @@ public class RegulAndIO extends Thread{
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAng = angVel * (double)period/1000;
-			acc.getAllAccel(accV, 0);
+			acc.getAllAccel(accV, 0);//Sloooooow
 			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
 			uinner = (int)(Math.round(limit(4*inner.calculateOutput(yinner*deg2rad, ref))));//uouter
@@ -124,7 +124,7 @@ public class RegulAndIO extends Thread{
 			left.setPower(power);
 			right.setPower(power);
 			
-			if(power < 40){
+			if(power < 4){
 				left.flt();
 				right.flt();
 			}else if(uinner < 0){
@@ -135,11 +135,11 @@ public class RegulAndIO extends Thread{
 				right.forward();
 			}
 			
-			
-//			if(counter%20==0 && counter <= 2000){
-//				sb.append(uinner + " " + youter+"\n");
-//			}
-//			counter++;
+			//tar tid, bara för att spara data till fil
+			if(counter%10==0 && counter <= 2500){
+				sb.append(uinner + " " + yinner+"\n");
+			}
+			counter++;
 			
 			t = t + period;
 			duration = t - System.currentTimeMillis();
@@ -153,6 +153,8 @@ public class RegulAndIO extends Thread{
 				System.out.println("oops: " + (duration-period));
 			}
 		}
-//		saveToFile();
+		left.stop();
+		right.stop();
+		saveToFile();
 	}
 }
