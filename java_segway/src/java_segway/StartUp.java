@@ -5,7 +5,7 @@ public class StartUp {
 	
 	public static void main(String[] args){
 		long refPeriod = 10000;
-		long regPeriod = 20; //tunad för 15, behövde längre för att spara data
+		long regPeriod = 10; //tunad för 15, behövde längre för att spara data
 //		long ioPeriod = 25;
 		int deg = 60;
 //		IOMonitor ioM = new IOMonitor();
