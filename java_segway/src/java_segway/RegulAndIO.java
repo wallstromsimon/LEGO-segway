@@ -26,8 +26,8 @@ public class RegulAndIO extends Thread{
 
 	private RefGen refGen;
 
-	double uMin = -100;
-	double uMax = 100;
+	double uMin = -40000;
+	double uMax = 40000;
 	
 	private boolean run = true;
 	
@@ -42,7 +42,7 @@ public class RegulAndIO extends Thread{
 //		paramInner = new PIDParam(-7.34137741596504, -44.6834487503629, -0.0504302228504053, 28.7822625226348, 1, 1, period);
 //		paramOuter = new PIDParam(0.00205773648435991, 3.50732954404154e-05, 0.00998848510035523, 5.41093442969671, 1, 1, period);
 		//large wheeeeeels
-		paramInner = new PIDParam(-19.2384687769688, -22.6122873470752, -5.096334853507139, 157.509233489267, 1, 1, period);
+		paramInner = new PIDParam(-11.8825077147756, -83.0975771089201, -0.0724947010258639, 137.103167872118, 1, 1, period);
 //		paramOuter = new PIDParam(0.00206187887900374, 2.09062324049099e-05, 0.0191551192258251, 2.67761009467029, 1, 1, period);
 		inner = new PIDController(paramInner);
 //		outer = new PIDController(paramOuter);
@@ -65,7 +65,7 @@ public class RegulAndIO extends Thread{
 		} else if (u > uMax) {
 			u = uMax;
 		} 
-		return u;
+		return u/uMax*100.0;
 	}
 	
 	public synchronized void kill(){
@@ -121,7 +121,7 @@ public class RegulAndIO extends Thread{
 			}
 			
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
-			uinner = (int)(Math.round(limit(4*inner.calculateOutput(yinner*deg2rad, ref))));//uouter
+			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner*deg2rad, ref))));//uouter
 			
 			power = Math.abs(uinner);
 			left.setPower(power);
@@ -138,10 +138,10 @@ public class RegulAndIO extends Thread{
 				right.forward();
 			}
 			
-			//tar tid, bara för att spara data till fil
-//			if(counter%10==0 && counter <= 2500){
-//				sb.append(uinner + " " + yinner+"\n");
-//			}
+//			tar tid, bara för att spara data till fil
+			if(counter%10==0 && counter <= 2500){
+				sb.append(uinner + " " + yinner+"\n");
+			}
 			counter++;
 			
 			t = t + period;
@@ -158,6 +158,6 @@ public class RegulAndIO extends Thread{
 		}
 		left.stop();
 		right.stop();
-//		saveToFile();
+		saveToFile();
 	}
 }
