@@ -12,7 +12,7 @@ public class Test2 {
 	public static void main(String[] args) throws InterruptedException {
 		GyroSensor gyro = new GyroSensor(SensorPort.S2);
 //		AccelHTSensor acc = new AccelHTSensor(SensorPort.S3);
-		AccelMindSensor acc = new AccelMindSensor(SensorPort.S2);
+		AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
 		gyro.recalibrateOffset();
 //		int accOff = 0;
 //		int count = 0;

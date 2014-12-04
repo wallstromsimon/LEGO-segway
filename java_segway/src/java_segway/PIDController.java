@@ -15,13 +15,7 @@ public class PIDController {
 		ad = p.Td / (p.Td + p.N * p.H);
 		bd = p.K * ad * p.N;
 	}
-	//??
-	public void reset(){
 
-	}
-
-	// Calculates the control signal v.
-	// Called from BallAndBeamRegul.
 	public double calculateOutput(double y, double yref){
 		this.y = y;
 		e = yref - y;
@@ -31,9 +25,6 @@ public class PIDController {
 		return u;
 	}
 
-	// Updates the controller state.
-	// Should use tracking-based anti-windup
-	// Called from BallAndBeamRegul.
 	public void updateState(double uNew){
 		I = I + (p.K * ((double)p.H/1000) / p.Ti) * e + (((double)p.H/1000) / p.Tr) * (uNew - u);
 		yOld = y;
