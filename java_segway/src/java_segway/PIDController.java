@@ -15,7 +15,7 @@ public class PIDController {
 	
 	public double calculateOutput(double y, double yref){
 		e = yref - y;
-		v = p.P * p.b * e + p.I * p.H * 1000.0 * e + p.D * p.N/(1 + p.N * p.H * 1000.0) * p.c * e;
+		v = p.P * p.b * e + p.I * (p.H / 1000.0) * e + p.D * p.N/(1 + p.N * (p.H / 1000.0)) * p.c * e;
 		return v;
 	}
 	
