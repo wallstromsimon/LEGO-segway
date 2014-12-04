@@ -18,16 +18,14 @@ public class RegulAndIO extends Thread{
 	GyroSensor gyro = new GyroSensor(SensorPort.S2);
 	AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
 
-	long period;
-	PIDParam paramInner;
-	PIDParam paramOuter;
-	PIDController inner;
-	//	PIDController outer;
+	private double period;
+	private PIDController inner;
+	//	private PIDController outer;
 
-	private RefGen refGen;
+//	private RefGen refGen;
 
-	double uMin = -100;
-	double uMax = 100;
+	private double uMin = -100;
+	private double uMax = 100;
 
 	private boolean run = true;
 
@@ -40,18 +38,12 @@ public class RegulAndIO extends Thread{
 
 
 
-	public RegulAndIO(long period, RefGen refGen) {
+	public RegulAndIO(double period) {
 		this.period = period;
-		this.refGen = refGen;
-		this.period = period;
-		//small wheels
-		//		paramInner = new PIDParam(-7.34137741596504, -44.6834487503629, -0.0504302228504053, 28.7822625226348, 1, 1, period);
-		//		paramOuter = new PIDParam(0.00205773648435991, 3.50732954404154e-05, 0.00998848510035523, 5.41093442969671, 1, 1, period);
-		//large wheeeeeels
-		paramInner = new PIDParam(-15, -0.1, -0.05, 10, 1, 1, period);
-		//		paramOuter = new PIDParam(0.00206187887900374, 2.09062324049099e-05, 0.0191551192258251, 2.67761009467029, 1, 1, period);
-		inner = new PIDController(paramInner);
-		//		outer = new PIDController(paramOuter);
+//		this.refGen = refGen;
+		//K,Ti,Tr,Td,N,b,H
+		inner = new PIDController(15, 10, 1, 0.05, 10, 1, period);
+		//outer = new PIDController(15, 0.1, 0.05, 10, 1, 1, period);
 
 		System.out.println("Calibrating...");
 		left.stop();
@@ -124,47 +116,37 @@ public class RegulAndIO extends Thread{
 		double gyroAng = 0;
 		double accAng = 0;
 		int[] accV = new int[3];
-		int power;
+		int power, uinner;
 
-		double youter, yinner = 0, ref, uouter;
-		int uinner;
+//		double youter,uouter;
+		double yinner = 0, ref;
 
 		double rad2deg = 180/Math.PI;
-		double deg2rad = Math.PI/180;
+//		double deg2rad = Math.PI/180;
 		long counter = 0;//used when saving data
-		long time;
 
 		while(run){//12ms with accelerometer
-			time = System.currentTimeMillis();
-			//			youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
+			//youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
 			ref = 0;//refGen.getRef();
-			//			uouter = outer.calculateOutput(youter, ref);
+			//uouter = outer.calculateOutput(youter, ref);
 
 			//1ms read gyro
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAng = angVel * (double)period/1000;
-			//			if(counter%4 == 0){
+			
 			//AccelMindSensor: 9ms getAll, 12ms getX+getY
 			//AccelHTSensor: 9ms getAll, 15ms getX+getY
 			acc.getAllAccel(accV, 0);
 			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
-			//			}
 
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
-
-			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner*deg2rad, ref))));//uouter
-			//			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner*deg2rad, ref))));//uouter
-
+			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner, ref))));//uouter
 
 			power = Math.abs(uinner);
 			left.setPower(power);
 			right.setPower(power);
 
-			//			if(power < 0){
-			//				left.flt();
-			//				right.flt();
-			//			}else 
 			if(uinner < 0){
 				left.backward();
 				right.backward();
@@ -173,23 +155,22 @@ public class RegulAndIO extends Thread{
 				right.forward();
 			}
 
+			//tar tid, bara för att spara data till fil
+			if(counter%10==0 && counter <= 2000){
+				Pb.append(inner.getP() + "\n");
+				Ib.append(inner.getI() + "\n");
+				Db.append(inner.getD() + "\n");
+				eb.append(inner.getE() + "\n");
+				yb.append(yinner + "\n");
+				ub.append(uinner + "\n");
+			}
+			
 			inner.updateState(uinner);
-			//			outer.updateStateMatlab();
-
-			//			tar tid, bara för att spara data till fil
-			//			if(counter%10==0 && counter <= 1000){
-			//				Pb.append(inner.getP() + "\n");
-			//				Ib.append(inner.getI() + "\n");
-			//				Db.append(inner.getD() + "\n");
-			//				eb.append(inner.getE() + "\n");
-			//				yb.append(yinner + "\n");
-			//				ub.append(uinner + "\n");
-			//			}
+//			outer.updateState();
 			counter++;
 
-			System.out.println(time-System.currentTimeMillis());
 
-			t = t + period;
+			t = t + (long)period*1000;
 			duration = t - System.currentTimeMillis();
 			if (duration > 0) {
 				try {
@@ -203,6 +184,6 @@ public class RegulAndIO extends Thread{
 		}
 		left.stop();
 		right.stop();
-		//		saveToFile();
+		saveToFile();
 	}
 }

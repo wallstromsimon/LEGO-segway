@@ -11,7 +11,7 @@ public class OpCom{
 			public void buttonPressed(Button b) {
 				System.out.println("EXIT");
 				reg.kill();
-				refGen.kill();
+//				refGen.kill();
 			}
 
 			@Override

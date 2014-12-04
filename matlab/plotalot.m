@@ -14,4 +14,5 @@ plot(d, 'g')
 plot(e, 'y')
 plot(u, 'p')
 plot(y, 'm')
+legend('p','i','d','e','u', 'y', 'Location','northwest')
 hold off
