@@ -115,7 +115,6 @@ public class RegulAndIO extends Thread{
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAng = angVel * (double)period/1000;
-
 			if(counter%4 == 0){
 				acc.getAllAccel(accV, 0);//Sloooooow
 				accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
@@ -127,12 +126,10 @@ public class RegulAndIO extends Thread{
 			
 			
 			power = Math.abs(uinner);
-			
 			left.setPower(power);
 			right.setPower(power);
 			
-
-			if(power < 10){
+			if(power < 0){
 				left.flt();
 				right.flt();
 			}else if(uinner < 0){
@@ -143,15 +140,13 @@ public class RegulAndIO extends Thread{
 				right.forward();
 			}
 			
-
 //			inner.updateStateMatlab();
-//			outer.updateState();
+//			outer.updateStateMatlab();
 			
 //			tar tid, bara för att spara data till fil
 //			if(counter%10==0 && counter <= 2500){
 //				sb.append(uinner + " " + yinner+"\n");
 //			}
-
 			counter++;
 			
 			t = t + period;
