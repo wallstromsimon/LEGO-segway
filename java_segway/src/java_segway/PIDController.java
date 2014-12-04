@@ -16,7 +16,13 @@ public class PIDController {
 		
 	}
 	
-	public double calculateOutput(double y, double yref){
+	public double calculateOutputSimulink(double y, double yref){
+		e = yref - y;
+		u = p.P * p.b * e + p.I * ((double)p.H / 1000.0) * e + p.D * p.N/(1 + p.N * ((double)p.H / 1000.0)) * p.c * e;
+		return u;
+	}
+	
+	public double calculateOutputMatlab(double y, double yref){
 		e = p.b*yref - y;
 		ei = yref - y;
 		ed = p.c*yref - y;
@@ -27,7 +33,7 @@ public class PIDController {
 		return u;
 	}
 	
-	public void updateState(){
+	public void updateStateMatlab(){
 		ig += ei * p.I * (double)p.H/1000;
 		filt += dg * (double)p.H/1000;
 	}

@@ -121,7 +121,9 @@ public class RegulAndIO extends Thread{
 			}
 			
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
-			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner*deg2rad, ref))));//uouter
+			uinner = (int)(Math.round(limit(inner.calculateOutputSimulink(yinner*deg2rad, ref))));//uouter
+//			uinner = (int)(Math.round(limit(inner.calculateOutputMatlab(yinner*deg2rad, ref))));//uouter
+			
 			
 			power = Math.abs(uinner);
 			left.setPower(power);
@@ -138,7 +140,7 @@ public class RegulAndIO extends Thread{
 				right.forward();
 			}
 			
-			inner.updateState();
+//			inner.updateStateMatlab();
 //			outer.updateState();
 			
 //			tar tid, bara för att spara data till fil
