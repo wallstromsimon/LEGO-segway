@@ -47,8 +47,8 @@ public class Regul extends Thread{
 				youter = ioM.getPos();
 				ref = 0;//refGen.getRef();
 				yinner = ioM.getAngle();
-				uouter = limit(outer.calculateOutputSimulink(youter, ref));
-				uinner = limit(inner.calculateOutputSimulink(yinner, uouter));
+				uouter = limit(outer.calculateOutput(youter, ref));
+				uinner = limit(inner.calculateOutput(yinner, uouter));
 				ioM.setMotor(uinner);
 			}
 			t = t + period;

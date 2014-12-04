@@ -31,7 +31,13 @@ public class RegulAndIO extends Thread{
 	
 	private boolean run = true;
 	
-	private StringBuffer sb = new StringBuffer();
+	private StringBuffer Pb = new StringBuffer();
+	private StringBuffer Ib = new StringBuffer();
+	private StringBuffer Db = new StringBuffer();
+	private StringBuffer eb = new StringBuffer();
+	private StringBuffer yb = new StringBuffer();
+	private StringBuffer ub = new StringBuffer();
+
 	
 
 	public RegulAndIO(long period, RefGen refGen) {
@@ -42,7 +48,7 @@ public class RegulAndIO extends Thread{
 //		paramInner = new PIDParam(-7.34137741596504, -44.6834487503629, -0.0504302228504053, 28.7822625226348, 1, 1, period);
 //		paramOuter = new PIDParam(0.00205773648435991, 3.50732954404154e-05, 0.00998848510035523, 5.41093442969671, 1, 1, period);
 		//large wheeeeeels
-		paramInner = new PIDParam(-11.8825077147756, 0, -39, 137.103167872118, 1, 1, period);
+		paramInner = new PIDParam(15, 0.1, 0.05, 10, 1, 1, period);
 //		paramOuter = new PIDParam(0.00206187887900374, 2.09062324049099e-05, 0.0191551192258251, 2.67761009467029, 1, 1, period);
 		inner = new PIDController(paramInner);
 //		outer = new PIDController(paramOuter);
@@ -73,12 +79,32 @@ public class RegulAndIO extends Thread{
 	}
 	
 	private void saveToFile(){
-		File f = new File("livedata.txt");
 		FileOutputStream fos;
 		try {
-			fos = new  FileOutputStream(f);
-			fos.write(sb.toString().getBytes());
+			fos = new  FileOutputStream(new File("p.txt"));
+			fos.write(Pb.toString().getBytes());
 			fos.close();
+			
+			fos = new  FileOutputStream(new File("i.txt"));
+			fos.write(Ib.toString().getBytes());
+			fos.close();
+			
+			fos = new  FileOutputStream(new File("d.txt"));
+			fos.write(Db.toString().getBytes());
+			fos.close();
+			
+			fos = new  FileOutputStream(new File("e.txt"));
+			fos.write(eb.toString().getBytes());
+			fos.close();
+			
+			fos = new  FileOutputStream(new File("y.txt"));
+			fos.write(yb.toString().getBytes());
+			fos.close();
+			
+			fos = new  FileOutputStream(new File("u.txt"));
+			fos.write(ub.toString().getBytes());
+			fos.close();
+			
 			System.out.println("Saved");
 			Thread.sleep(2000);
 		} catch (FileNotFoundException e) {
@@ -112,27 +138,32 @@ public class RegulAndIO extends Thread{
 			ref = 0;//refGen.getRef();
 //			uouter = outer.calculateOutput(youter, ref);
 			
+			//1ms read gyro
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAng = angVel * (double)period/1000;
-			if(counter%4 == 0){
-				acc.getAllAccel(accV, 0);//Sloooooow
+//			if(counter%4 == 0){
+//			AccelMindSensor: 9ms getAll, 12ms getX+getY
+//			AccelHTSensor: 9ms getAll, 15ms getX+getY
+				acc.getAllAccel(accV, 0);
 				accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
-			}
+//			}
 			
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
-			uinner = (int)(Math.round(limit(inner.calculateOutputSimulink(yinner*deg2rad, ref))));//uouter
-//			uinner = (int)(Math.round(limit(inner.calculateOutputMatlab(yinner*deg2rad, ref))));//uouter
+			
+			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner*deg2rad, ref))));//uouter
+//			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner*deg2rad, ref))));//uouter
 			
 			
 			power = Math.abs(uinner);
 			left.setPower(power);
 			right.setPower(power);
 			
-			if(power < 0){
-				left.flt();
-				right.flt();
-			}else if(uinner < 0){
+//			if(power < 0){
+//				left.flt();
+//				right.flt();
+//			}else 
+				if(uinner < 0){
 				left.backward();
 				right.backward();
 			}else{
@@ -140,13 +171,18 @@ public class RegulAndIO extends Thread{
 				right.forward();
 			}
 			
-//			inner.updateStateMatlab();
+			inner.updateState(uinner);
 //			outer.updateStateMatlab();
 			
 //			tar tid, bara för att spara data till fil
-//			if(counter%10==0 && counter <= 2500){
-//				sb.append(uinner + " " + yinner+"\n");
-//			}
+			if(counter%10==0 && counter <= 1000){
+				Pb.append(inner.getP() + "\n");
+				Ib.append(inner.getI() + "\n");
+				Db.append(inner.getD() + "\n");
+				eb.append(inner.getE() + "\n");
+				yb.append(yinner + "\n");
+				ub.append(uinner + "\n");
+			}
 			counter++;
 			
 			t = t + period;
@@ -163,6 +199,6 @@ public class RegulAndIO extends Thread{
 		}
 		left.stop();
 		right.stop();
-//		saveToFile();
+		saveToFile();
 	}
 }

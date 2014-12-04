@@ -1,4 +1,4 @@
-data = load('data2.txt'); %load raw data
+data = load('data\data2.txt'); %load raw data
 
 %data(x,1) angular velocity
 %data(x,2) accelerometer x-value
