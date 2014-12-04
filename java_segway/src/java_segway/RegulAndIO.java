@@ -40,11 +40,13 @@ public class RegulAndIO extends Thread{
 
 	public RegulAndIO(double period) {
 		this.period = period;
-//		this.refGen = refGen;
+//		this.refGen = refGen; //Use 0 as ref
+		
 		//K,Ti,Tr,Td,N,b,H
-		inner = new PIDController(15, 10, 1, 0.05, 10, 1, period);
-		//outer = new PIDController(15, 0.1, 0.05, 10, 1, 1, period);
-
+		inner = new PIDController(10, 10, 0.4, 0.15, 10, 1, period);
+		//outer = new PIDController(15, 0.1, 1, 0.05, 10, 1, period); //tuning inner loop right now
+		
+		//Starting and calibrating
 		System.out.println("Calibrating...");
 		left.stop();
 		right.stop();
@@ -52,11 +54,12 @@ public class RegulAndIO extends Thread{
 		right.resetTachoCount();
 
 		gyro.recalibrateOffset();
-		System.out.println("Calibrated, hold robot and press any key to balance");
-		Button.waitForAnyPress();
+		System.out.println("Calibrated, hold robot and press enter to balance");
+		Button.ENTER.waitForPress();
 		System.out.println("\"Balancing\"");
 	}
 
+	//Limit to cap u
 	private double limit(double u) {
 		if (u < uMin) {
 			u = uMin;
@@ -66,10 +69,12 @@ public class RegulAndIO extends Thread{
 		return u;
 	}
 
+	//Kill robot when ESC is pressed, called from OpCom
 	public synchronized void kill(){
 		run = false;
 	}
 
+	//Saves data to files if called after run loop
 	private void saveToFile(){
 		FileOutputStream fos;
 		try {
@@ -116,20 +121,23 @@ public class RegulAndIO extends Thread{
 		double gyroAng = 0;
 		double accAng = 0;
 		int[] accV = new int[3];
-		int power, uinner;
 
 //		double youter,uouter;
 		double yinner = 0, ref;
-
+		int power, uinner;
+		
 		double rad2deg = 180/Math.PI;
 //		double deg2rad = Math.PI/180;
 		long counter = 0;//used when saving data
 
 		while(run){//12ms with accelerometer
-			//youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
 			ref = 0;//refGen.getRef();
+			
+			//Calculate outer loop
+			//youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
 			//uouter = outer.calculateOutput(youter, ref);
 
+			//Calculate inner loop
 			//1ms read gyro
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
@@ -143,11 +151,12 @@ public class RegulAndIO extends Thread{
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
 			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner, ref))));//uouter
 
+			//Set power and direction
 			power = Math.abs(uinner);
 			left.setPower(power);
 			right.setPower(power);
 
-			if(uinner < 0){
+			if(uinner > 0){
 				left.backward();
 				right.backward();
 			}else{
@@ -155,22 +164,25 @@ public class RegulAndIO extends Thread{
 				right.forward();
 			}
 
-			//tar tid, bara för att spara data till fil
-			if(counter%10==0 && counter <= 2000){
-				Pb.append(inner.getP() + "\n");
-				Ib.append(inner.getI() + "\n");
-				Db.append(inner.getD() + "\n");
-				eb.append(inner.getE() + "\n");
-				yb.append(yinner + "\n");
-				ub.append(uinner + "\n");
-			}
+			//Uncomment to save data
+//			if(counter%10==0 && counter < 2000){
+//				Pb.append(inner.getP() + "\n");
+//				Ib.append(inner.getI() + "\n");
+//				Db.append(inner.getD() + "\n");
+//				eb.append(inner.getE() + "\n");
+//				yb.append(yinner + "\n");
+//				ub.append(uinner + "\n");
+//			}
+//			counter++;
 			
+			
+			//Update controller states
 			inner.updateState(uinner);
 //			outer.updateState();
-			counter++;
 
 
-			t = t + (long)period*1000;
+			//sleep
+			t = t + (long)(period*1000);
 			duration = t - System.currentTimeMillis();
 			if (duration > 0) {
 				try {
@@ -182,8 +194,9 @@ public class RegulAndIO extends Thread{
 				System.out.println("oops: " + (duration-period));
 			}
 		}
+		//Stop and save on exit
 		left.stop();
 		right.stop();
-		saveToFile();
+//		saveToFile();
 	}
 }

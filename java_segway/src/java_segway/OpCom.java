@@ -11,7 +11,6 @@ public class OpCom{
 			public void buttonPressed(Button b) {
 				System.out.println("EXIT");
 				reg.kill();
-//				refGen.kill();
 			}
 
 			@Override
@@ -23,8 +22,7 @@ public class OpCom{
 		Button.LEFT.addButtonListener(new ButtonListener() {
 			@Override
 			public void buttonPressed(Button b) {
-				System.out.println("Reset");
-//				reset();
+				System.out.println("Left...");
 			}
 
 			@Override
@@ -36,8 +34,7 @@ public class OpCom{
 		Button.RIGHT.addButtonListener(new ButtonListener() {
 			@Override
 			public void buttonPressed(Button b) {
-				System.out.println("New mode, yay!");
-//				setMode();
+				System.out.println("Right button pushed...");
 			}
 			
 			@Override
@@ -46,18 +43,5 @@ public class OpCom{
 		});
 	}
 	
-//	public void reset(){
-//		io.reset();
-//		refGen.setRef(0);
-//		refGen.setMode(0);
-//	}
-//	
-//	public void setMode(){
-//		if(refGen.getMode() == 0){
-//			refGen.setMode(1);
-//		}else if(refGen.getMode() == 1){
-//			refGen.setMode(0);
-//		}
-//	}
 		
 }

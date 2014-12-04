@@ -11,7 +11,7 @@ public class PIDController {
 		this.Ti = Ti;
 		this.Tr = Tr;
 		this.b = b;
-		this.H = H;
+		this.H = H; //Period time in secounds
 		
 		ad = Td / (Td + N * H);
 		bd = K * ad * N;
@@ -27,10 +27,11 @@ public class PIDController {
 	}
 
 	public synchronized void updateState(double uNew){
-		I = I + (K * H / Ti) * e + (H / Tr) * (uNew - u);
+		I += (K * H / Ti) * e + (H / Tr) * (uNew - u);
 		yOld = y;
 	}
 
+	//Methods called when saving data to plot
 	public synchronized double getP(){
 		return P;
 	}
