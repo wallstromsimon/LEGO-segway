@@ -43,7 +43,7 @@ public class RegulAndIO extends Thread{
 //		this.refGen = refGen; //Use 0 as ref
 		
 		//K,Ti,Tr,Td,N,b,H
-		inner = new PIDController(10, 10, 0.4, 0.15, 10, 1, period);
+		inner = new PIDController(8.3, 39.9, 1, 0.41, 92, 1, period);
 		//outer = new PIDController(15, 0.1, 1, 0.05, 10, 1, period); //tuning inner loop right now
 		
 		//Starting and calibrating
@@ -124,7 +124,7 @@ public class RegulAndIO extends Thread{
 
 //		double youter,uouter;
 		double yinner = 0, ref;
-		int power, uinner;
+		int power, uinner, lastUinner = 0;
 		
 		double rad2deg = 180/Math.PI;
 //		double deg2rad = Math.PI/180;
@@ -156,13 +156,14 @@ public class RegulAndIO extends Thread{
 			left.setPower(power);
 			right.setPower(power);
 
-			if(uinner > 0){
+			if(uinner > 0 && lastUinner <= 0){
 				left.backward();
 				right.backward();
-			}else{
+			}else if(uinner < 0 && lastUinner >= 0){
 				left.forward();
 				right.forward();
 			}
+			lastUinner = uinner;
 
 			//Uncomment to save data
 //			if(counter%10==0 && counter < 2000){

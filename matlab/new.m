@@ -38,12 +38,12 @@ B = M\Btilde;
 C=diag([1 1 1 1]);
 D=[0 0 0 0]';
 
-X0 = [0 15*pi/180 0 0]';
+X0 = [0 0 0 0]';
 
 % State Space for the open-loop system
 ss_open=ss(A,B,C,D); %cont
 
-h = 0.01;
+h = 0.015;
 H = c2d(ss_open, h);
 
 [A2, B2, C2, D2] = ssdata(H);
