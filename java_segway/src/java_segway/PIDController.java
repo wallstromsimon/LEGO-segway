@@ -4,16 +4,18 @@ public class PIDController {
 	private double e, u, y, yOld;
 	private double P, I, D, ad, bd;
 	private double K, Ti, Tr;
-	private double b, H;
+	private double b, h;
 
-	public PIDController(double K, double Ti, double Tr, double Td, double N, double b, double H){
+	public PIDController(double K, double Ti, double Tr, double Td, double N, double b, double h){
 		this.K = K;
 		this.Ti = Ti;
 		this.Tr = Tr;
 		this.b = b;
-		this.H = H; //Period time in secounds
-		
-		ad = Td / (Td + N * H);
+		this.h = h; //Period time in secounds
+		P = 0.0;
+		I = 0.0;
+		D = 0.0;
+		ad = Td / (Td + N * h);
 		bd = K * ad * N;
 	}
 
@@ -28,7 +30,7 @@ public class PIDController {
 
 	public synchronized void updateState(double uNew){
 		if(Ti != 0 && Tr !=0){
-			I += (K * H / Ti) * e + (H / Tr) * (uNew - u);
+			I += (K * h / Ti) * e + (h / Tr) * (uNew - u);
 		}else{
 			I = 0.0;
 		}

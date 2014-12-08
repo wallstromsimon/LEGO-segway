@@ -13,10 +13,10 @@ import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
 
 public class RegulAndIO extends Thread{
-	NXTMotor left = new NXTMotor(MotorPort.C);
-	NXTMotor right = new NXTMotor(MotorPort.B);
-	GyroSensor gyro = new GyroSensor(SensorPort.S2);
-	AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
+	private NXTMotor left = new NXTMotor(MotorPort.C);
+	private NXTMotor right = new NXTMotor(MotorPort.B);
+	private GyroSensor gyro = new GyroSensor(SensorPort.S2);
+	private AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
 
 	private double period;
 	private PIDController inner;
@@ -36,14 +36,12 @@ public class RegulAndIO extends Thread{
 	private StringBuffer yb = new StringBuffer();
 	private StringBuffer ub = new StringBuffer();
 
-
-
 	public RegulAndIO(double period) {
 		this.period = period;
 //		this.refGen = refGen; //Use 0 as ref
 		
 		//K,Ti,Tr,Td,N,b,H
-		inner = new PIDController(8.3, 39.9, 1, 0.41, 92, 1, period);
+		inner = new PIDController(7, 3, 0.9, 0.28, 10, 1, period);
 		//outer = new PIDController(15, 0.1, 1, 0.05, 10, 1, period); //tuning inner loop right now
 		
 		//Starting and calibrating
@@ -166,15 +164,15 @@ public class RegulAndIO extends Thread{
 			lastUinner = uinner;
 
 			//Uncomment to save data
-//			if(counter%10==0 && counter < 2000){
-//				Pb.append(inner.getP() + "\n");
-//				Ib.append(inner.getI() + "\n");
-//				Db.append(inner.getD() + "\n");
-//				eb.append(inner.getE() + "\n");
-//				yb.append(yinner + "\n");
-//				ub.append(uinner + "\n");
-//			}
-//			counter++;
+			if(counter%10==0 && counter < 2000){
+				Pb.append(inner.getP() + "\n");
+				Ib.append(inner.getI() + "\n");
+				Db.append(inner.getD() + "\n");
+				eb.append(inner.getE() + "\n");
+				yb.append(yinner + "\n");
+				ub.append(uinner + "\n");
+			}
+			counter++;
 			
 			
 			//Update controller states
@@ -198,6 +196,6 @@ public class RegulAndIO extends Thread{
 		//Stop and save on exit
 		left.stop();
 		right.stop();
-//		saveToFile();
+		saveToFile();
 	}
 }
