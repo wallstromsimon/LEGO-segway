@@ -80,8 +80,8 @@ public class FeedbackController extends Thread{
 			Psi = (Psi + gyroAng) * 0.92 + accAng * 0.08;
 			
 			
-			Phi = (left.getTachoCount()+right.getTachoCount())/2;
-			PhiDot = (left.getRotationSpeed()+right.getRotationSpeed())/2;
+			Phi = (left.getTachoCount()+right.getTachoCount())/2.0;
+			PhiDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
 			
 			// Proportional Error
 			error = Psi * K_psi + Phi * K_phi + PsiDot * K_psidot + PhiDot * K_phidot;
