@@ -5,7 +5,7 @@ import lejos.nxt.ButtonListener;
 
 public class OpCom{
 
-	public OpCom(final RefGen refGen, final RegulAndIO reg) {
+	public OpCom(final RefGen refGen, final FeedbackController reg) {
 		Button.ESCAPE.addButtonListener(new ButtonListener() {
 			@Override
 			public void buttonPressed(Button b) {

@@ -41,7 +41,7 @@ public class RegulAndIO extends Thread{
 //		this.refGen = refGen; //Use 0 as ref
 		
 		//K,Ti,Tr,Td,N,b,H
-		inner = new PIDController(7, 3, 0.9, 0.28, 10, 1, period);
+		inner = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period);
 		//outer = new PIDController(15, 0.1, 1, 0.05, 10, 1, period); //tuning inner loop right now
 		
 		//Starting and calibrating
@@ -139,13 +139,13 @@ public class RegulAndIO extends Thread{
 			//1ms read gyro
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
-			gyroAng = angVel * (double)period/1000;
+			gyroAng = (angVel * (double)period/1000);
 			
 			//AccelMindSensor: 9ms getAll, 12ms getX+getY
 			//AccelHTSensor: 9ms getAll, 15ms getX+getY
 			acc.getAllAccel(accV, 0);
 			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
-
+			
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
 			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner, ref))));//uouter
 
@@ -164,15 +164,15 @@ public class RegulAndIO extends Thread{
 			lastUinner = uinner;
 
 			//Uncomment to save data
-			if(counter%10==0 && counter < 2000){
-				Pb.append(inner.getP() + "\n");
-				Ib.append(inner.getI() + "\n");
-				Db.append(inner.getD() + "\n");
-				eb.append(inner.getE() + "\n");
-				yb.append(yinner + "\n");
-				ub.append(uinner + "\n");
-			}
-			counter++;
+//			if(counter%10==0 && counter < 2000){
+//				Pb.append(inner.getP() + "\n");
+//				Ib.append(inner.getI() + "\n");
+//				Db.append(inner.getD() + "\n");
+//				eb.append(inner.getE() + "\n");
+//				yb.append(yinner + "\n");
+//				ub.append(uinner + "\n");
+//			}
+//			counter++;
 			
 			
 			//Update controller states
@@ -196,6 +196,6 @@ public class RegulAndIO extends Thread{
 		//Stop and save on exit
 		left.stop();
 		right.stop();
-		saveToFile();
+//		saveToFile();
 	}
 }
