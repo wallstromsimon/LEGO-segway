@@ -1,8 +1,6 @@
 package java_segway;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import lejos.nxt.Button;
@@ -12,6 +10,8 @@ import lejos.nxt.NXTMotor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
+import lejos.nxt.comm.USB;
+import lejos.nxt.comm.USBConnection;
 
 public class RegulAndIO extends Thread{
 	private NXTMotor left = new NXTMotor(MotorPort.C);
@@ -23,7 +23,7 @@ public class RegulAndIO extends Thread{
 	private PIDController inner;
 	//	private PIDController outer;
 
-//	private RefGen refGen;
+	//	private RefGen refGen;
 
 	private double uMin = -100;
 	private double uMax = 100;
@@ -31,21 +31,24 @@ public class RegulAndIO extends Thread{
 	private boolean run = true;
 	private boolean log = true;
 
-	private StringBuffer Pb = new StringBuffer();
-	private StringBuffer Ib = new StringBuffer();
-	private StringBuffer Db = new StringBuffer();
-	private StringBuffer eb = new StringBuffer();
-	private StringBuffer yb = new StringBuffer();
-	private StringBuffer ub = new StringBuffer();
+	private USBConnection conn;
+	private DataOutputStream dOut;
 
 	public RegulAndIO(double period) {
 		this.period = period;
-//		this.refGen = refGen; //Use 0 as ref
-		
+		//		this.refGen = refGen; //Use 0 as ref
+
 		//K,Ti,Tr,Td,N,b,H   6.3, 3, 0.9, 0.3, 10, 1, period
 		inner = new PIDController(6.5, 2.9, 0.91, 0.32, 100, 1, period);
 		//outer = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period); //tuning inner loop right now
-		
+
+		//Set up USB contact to send files
+		if(log){
+			LCD.drawString("waiting", 0, 0);
+			conn = USB.waitForConnection();
+			dOut = conn.openDataOutputStream();
+		}
+
 		//Starting and calibrating
 		System.out.println("Calibrating...");
 		left.stop();
@@ -76,45 +79,6 @@ public class RegulAndIO extends Thread{
 		run = false;
 	}
 
-	//Saves data to files if called after run loop
-	private void saveToFile(){
-		FileOutputStream fos;
-		try {
-			fos = new  FileOutputStream(new File("p.txt"));
-			fos.write(Pb.toString().getBytes());
-			fos.close();
-
-			fos = new  FileOutputStream(new File("i.txt"));
-			fos.write(Ib.toString().getBytes());
-			fos.close();
-
-			fos = new  FileOutputStream(new File("d.txt"));
-			fos.write(Db.toString().getBytes());
-			fos.close();
-
-			fos = new  FileOutputStream(new File("e.txt"));
-			fos.write(eb.toString().getBytes());
-			fos.close();
-
-			fos = new  FileOutputStream(new File("y.txt"));
-			fos.write(yb.toString().getBytes());
-			fos.close();
-
-			fos = new  FileOutputStream(new File("u.txt"));
-			fos.write(ub.toString().getBytes());
-			fos.close();
-
-			System.out.println("Saved");
-			Thread.sleep(2000);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void run(){
 		long t = System.currentTimeMillis();
 		long duration;
@@ -124,17 +88,17 @@ public class RegulAndIO extends Thread{
 		double accAng = 0;
 		int[] accV = new int[3];
 
-//		double youter,uouter;
+		//		double youter,uouter;
 		double yinner = 0, ref;
 		int power, uinner, lastUinner = 0;
-		
+
 		double rad2deg = 180/Math.PI;
-//		double deg2rad = Math.PI/180;
+		//		double deg2rad = Math.PI/180;
 		long counter = 0;//used when saving data
 
 		while(run){//12ms with accelerometer
 			ref = 0;//refGen.getRef();
-			
+
 			//Calculate outer loop
 			//youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
 			//uouter = outer.calculateOutput(youter, ref);
@@ -144,12 +108,12 @@ public class RegulAndIO extends Thread{
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAng = (angVel * (double)period/1000);
-			
+
 			//AccelMindSensor: 9ms getAll, 12ms getX+getY
 			//AccelHTSensor: 9ms getAll, 15ms getX+getY
 			acc.getAllAccel(accV, 0);
 			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
-			
+
 			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
 			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner, ref))));//uouter
 
@@ -167,22 +131,23 @@ public class RegulAndIO extends Thread{
 			}
 			lastUinner = uinner;
 
-			//Uncomment to save data
+			long time;
+			//Save data
 			if(log && counter%10==0 && counter < 2000){
-				Pb.append(inner.getP() + "\n");
-				Ib.append(inner.getI() + "\n");
-				Db.append(inner.getD() + "\n");
-				eb.append(inner.getE() + "\n");
-				yb.append(yinner + "\n");
-				ub.append(uinner + "\n");
+				time = System.currentTimeMillis();
+				try {
+					dOut.writeBytes(inner.getP() + " " + inner.getI() + " " + inner.getD() + " " + inner.getE() + " " + yinner + " " + uinner + "\n");
+					dOut.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				System.out.println(System.currentTimeMillis()-time);
 			}
 			counter++;
-			
-			
+
 			//Update controller states
 			inner.updateState(uinner);
-//			outer.updateState();
-
+			//			outer.updateState();
 
 			//sleep
 			t = t + (long)(period*1000);
@@ -194,14 +159,21 @@ public class RegulAndIO extends Thread{
 					e.printStackTrace();
 				}
 			} else{
-				System.out.println("oops: " + (duration-period));
+				//System.out.println("oops: " + (duration-period));
 			}
 		}
 		//Stop and save on exit
 		left.stop();
 		right.stop();
 		if(log){
-			saveToFile();
+			try {
+				dOut.writeBytes("exit\n");
+				dOut.flush();
+				dOut.close();
+				conn.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 }

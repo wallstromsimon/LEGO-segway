@@ -1,45 +1,44 @@
 package java_segway;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 
 import lejos.nxt.LCD;
+import lejos.nxt.SensorPort;
+import lejos.nxt.addon.AccelMindSensor;
+import lejos.nxt.addon.GyroSensor;
 import lejos.nxt.comm.USB;
 import lejos.nxt.comm.USBConnection;
 
-/**
- * Test of Java streams over USB.
- * Run the PC example, USBSend, to send data.
- * 
- * @author Lawrie Griffiths
- *
- */
 public class SendTest {
 
-	public static void main(String [] args) throws Exception 
-	{
+	public static void main(String [] args) throws Exception{
+		
+		GyroSensor gyro = new GyroSensor(SensorPort.S2);
+		AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
+		
+		double gyroData;
+		int[] accData = new int[3];
+		
 		LCD.drawString("waiting", 0, 0);
 		USBConnection conn = USB.waitForConnection();
 		DataOutputStream dOut = conn.openDataOutputStream();
-		DataInputStream dIn = conn.openDataInputStream();
+//		DataInputStream dIn = conn.openDataInputStream();
 		
-		while (true) 
-		{
-            int b;
-            try
-            {
-                b = dIn.readInt();
-            }
-            catch (EOFException e) 
-            {
-                break;
-            }         
-			dOut.writeInt(-b);
+		long time;
+		
+		for(int i = 0; i <10; i++){
+			gyroData = gyro.getAngularVelocity();
+			acc.getAllAccel(accData, 0);
+			time = System.currentTimeMillis();
+			dOut.writeBytes(gyroData + "   " + (accData[0]) + "   " + (-accData[1]) + "12.3" + "13245.99" + "12345.6" + "1234"+ "\n");
 			dOut.flush();
-	        LCD.drawInt(b,8,0,1);
+			System.out.println(System.currentTimeMillis() - time);
+			Thread.sleep(100);
 		}
+		dOut.writeBytes("exit\n");
+		dOut.flush();
         dOut.close();
-        dIn.close();
+//        dIn.close();
         conn.close();
 	}
 }
