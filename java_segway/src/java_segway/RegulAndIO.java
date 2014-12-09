@@ -43,7 +43,7 @@ public class RegulAndIO extends Thread{
 //		this.refGen = refGen; //Use 0 as ref
 		
 		//K,Ti,Tr,Td,N,b,H   6.3, 3, 0.9, 0.3, 10, 1, period
-		inner = new PIDController(6.26, 3.1, 0.91, 0.31, 100, 1, period);
+		inner = new PIDController(6.5, 2.9, 0.91, 0.32, 100, 1, period);
 		//outer = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period); //tuning inner loop right now
 		
 		//Starting and calibrating
