@@ -39,7 +39,7 @@ public class RegulAndIO extends Thread{
 		//		this.refGen = refGen; //Use 0 as ref
 
 		//K,Ti,Tr,Td,N,b,H   6.3, 3, 0.9, 0.3, 10, 1, period
-		inner = new PIDController(6.5, 2.9, 0.91, 0.32, 100, 1, period);
+		inner = new PIDController(6.5, 2.5, 0.91, 0.3, 100, 1, period);
 		//outer = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period); //tuning inner loop right now
 
 		//Set up USB contact to send files
@@ -131,7 +131,7 @@ public class RegulAndIO extends Thread{
 			}
 			lastUinner = uinner;
 
-			//Save data
+			//Save data, ~16ms
 			if(log && counter%10==0){
 				try {
 					dOut.writeBytes(inner.getP() + " " + inner.getI() + " " + inner.getD() + " " + inner.getE() + " " + uinner + " " + yinner + "\n");
@@ -156,7 +156,7 @@ public class RegulAndIO extends Thread{
 					e.printStackTrace();
 				}
 			} else{
-				//System.out.println("oops: " + (duration-period));
+				System.out.println("oops: " + (duration-period));
 			}
 		}
 		//Stop and save on exit
