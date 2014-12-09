@@ -11,24 +11,14 @@ public class FeedbackController extends Thread{
 	private NXTRegulatedMotor left = new NXTRegulatedMotor(MotorPort.C);
 	private NXTRegulatedMotor right = new NXTRegulatedMotor(MotorPort.B);
 	private GyroSensor gyro = new GyroSensor(SensorPort.S2);
-	private AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
-	
-	// The PID control parameters
-	private double Kp = 1.25;//1.2;
-	private double Ki = 0.25;//0.25;
-	private double Kd = 0.10;//0.1;
-	// Testing error contributions. -1.0000  -23.6256   -1.3765   -3.5405
-	private double K_psi = -1.0000;
-	private double K_phi = -23.6256;
-	private double K_psidot = -1.3765;
-	private double K_phidot = -3.5405;
+	//	private AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
 
 	private double period;
 	private boolean run = true;
-	
+
 	public FeedbackController(double period){
 		this.period = period;
-		
+
 		System.out.println("Calibrating...");
 		left.stop();
 		right.stop();
@@ -40,78 +30,68 @@ public class FeedbackController extends Thread{
 		Button.ENTER.waitForPress();
 		System.out.println("\"Balancing\"");
 	}
-	
+
 	public void kill(){
 		run = false;
 	}
 
-	public void run()
-	{
-		double int_error = 0.0;
-		double prev_error = 0.0;
-		double Psi = 0; //Angle
-		double PsiDot; //AngleVel
-		double Phi;//wheel
-		double PhiDot;//wheel rot speed
-		
-		double error;
-		double deriv_error;
-		int power, lastPower = 0;
-		double direction;
-		
-		double rad2deg = 180/Math.PI;
-		double accAng, gyroAng;
-		int[] accV = new int[3];
+	public void run() {
+		double phi = 0; //Angle
+		double phiDot; //AngleVel
+		double theta;//wheel
+		double thetaDot;//wheel rot speed
 
+		int power;
+		double u, lastU = 0;
+		double ref = 0;
+
+		//		double rad2deg = 180/Math.PI;
+		double accAng, gyroAng;
+		//		int[] accV = new int[3];
+		double[] lVector = {-1.0000, -23.6256, -1.3765, -3.5405};
 
 		while (!Button.ESCAPE.isDown()){
 			long t = System.currentTimeMillis();
 			long duration;
-			
-			PsiDot = gyro.getAngularVelocity();	
-			PsiDot = Math.abs(PsiDot) < 1 ? 0 : PsiDot;
-			gyroAng = (PsiDot * (double)period/1000);
-			
+
+			phiDot = gyro.getAngularVelocity();	
+			phiDot = Math.abs(phiDot) < 1 ? 0 : phiDot;
+			gyroAng = phiDot * (double)period;
+
 			//AccelMindSensor: 9ms getAll, 12ms getX+getY
 			//AccelHTSensor: 9ms getAll, 15ms getX+getY
-			acc.getAllAccel(accV, 0);
-			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
-			
-			Psi = (Psi + gyroAng) * 0.92 + accAng * 0.08;
-			
-			
-			Phi = (left.getTachoCount()+right.getTachoCount())/2.0;
-			PhiDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
-			
-			// Proportional Error
-			error = Psi * K_psi + Phi * K_phi + PsiDot * K_psidot + PhiDot * K_phidot;
-			// Integral Error
-			int_error += error;
-			// Derivative Error
-			deriv_error = error - prev_error;
-			prev_error = error;
-			
-			
+			//			acc.getAllAccel(accV, 0);
+			//			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
+
+			//want phi --> 0
+			phi = (phi + gyroAng); //* 0.92 + accAng * 0.08;
+			System.out.println("Angle = " + phi);
+
+			theta = (left.getTachoCount()+right.getTachoCount())/2.0;
+			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
+
 			// Power sent to the motors
-			direction = error * Kp + deriv_error * Kd +	int_error * Ki;
-			
+			u = ref - ((lVector[0]*phi) + (lVector[1]*theta) + (lVector[2]*phiDot) + (lVector[3]*thetaDot));
+
 			//Set power and direction
-			System.out.println("direction: " + direction);
-			power = (int)Math.round(Math.abs(direction));
-			System.out.println("Power: " + power);
+			power = (int)Math.round(Math.abs(limit(u)));
+
 			left.setSpeed(power);
 			right.setSpeed(power);
 
-			if(power > 0 && lastPower <= 0){
+			if (u > 0) {
 				left.backward();
 				right.backward();
-			}else if(power < 0 && lastPower >= 0){
+			} else if (u < 0) {
 				left.forward();
 				right.forward();
+			} else {
+				left.stop();
+				right.stop();
 			}
-			lastPower = power;
-			
-			
+			lastU = u;
+
+
 			//sleep
 			t = t + (long)(period*1000);
 			duration = t - System.currentTimeMillis();
@@ -125,5 +105,15 @@ public class FeedbackController extends Thread{
 				System.out.println("oops: " + (duration-period));
 			}
 		}
+	}
+
+	//Limit to cap u
+	private double limit(double u) {
+		if (u < -100) {
+			u = -100;
+		} else if (u > 100) {
+			u = 100;
+		} 
+		return u;
 	}
 }
