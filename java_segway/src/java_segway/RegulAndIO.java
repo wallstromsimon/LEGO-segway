@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import lejos.nxt.Button;
+import lejos.nxt.LCD;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
 import lejos.nxt.SensorPort;
@@ -28,6 +29,7 @@ public class RegulAndIO extends Thread{
 	private double uMax = 100;
 
 	private boolean run = true;
+	private boolean log = true;
 
 	private StringBuffer Pb = new StringBuffer();
 	private StringBuffer Ib = new StringBuffer();
@@ -40,9 +42,9 @@ public class RegulAndIO extends Thread{
 		this.period = period;
 //		this.refGen = refGen; //Use 0 as ref
 		
-		//K,Ti,Tr,Td,N,b,H
-		inner = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period);
-		//outer = new PIDController(15, 0.1, 1, 0.05, 10, 1, period); //tuning inner loop right now
+		//K,Ti,Tr,Td,N,b,H   6.3, 3, 0.9, 0.3, 10, 1, period
+		inner = new PIDController(6.26, 3.1, 0.91, 0.31, 10, 1, period);
+		//outer = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period); //tuning inner loop right now
 		
 		//Starting and calibrating
 		System.out.println("Calibrating...");
@@ -52,8 +54,10 @@ public class RegulAndIO extends Thread{
 		right.resetTachoCount();
 
 		gyro.recalibrateOffset();
+		LCD.clear();
 		System.out.println("Calibrated, hold robot and press enter to balance");
 		Button.ENTER.waitForPress();
+		LCD.clear();
 		System.out.println("\"Balancing\"");
 	}
 
@@ -164,15 +168,15 @@ public class RegulAndIO extends Thread{
 			lastUinner = uinner;
 
 			//Uncomment to save data
-//			if(counter%10==0 && counter < 2000){
-//				Pb.append(inner.getP() + "\n");
-//				Ib.append(inner.getI() + "\n");
-//				Db.append(inner.getD() + "\n");
-//				eb.append(inner.getE() + "\n");
-//				yb.append(yinner + "\n");
-//				ub.append(uinner + "\n");
-//			}
-//			counter++;
+			if(log && counter%10==0 && counter < 2000){
+				Pb.append(inner.getP() + "\n");
+				Ib.append(inner.getI() + "\n");
+				Db.append(inner.getD() + "\n");
+				eb.append(inner.getE() + "\n");
+				yb.append(yinner + "\n");
+				ub.append(uinner + "\n");
+			}
+			counter++;
 			
 			
 			//Update controller states
@@ -196,6 +200,8 @@ public class RegulAndIO extends Thread{
 		//Stop and save on exit
 		left.stop();
 		right.stop();
-//		saveToFile();
+		if(log){
+			saveToFile();
+		}
 	}
 }
