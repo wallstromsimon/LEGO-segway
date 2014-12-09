@@ -131,17 +131,14 @@ public class RegulAndIO extends Thread{
 			}
 			lastUinner = uinner;
 
-			long time;
 			//Save data
-			if(log && counter%10==0 && counter < 2000){
-				time = System.currentTimeMillis();
+			if(log && counter%10==0){
 				try {
-					dOut.writeBytes(inner.getP() + " " + inner.getI() + " " + inner.getD() + " " + inner.getE() + " " + yinner + " " + uinner + "\n");
+					dOut.writeBytes(inner.getP() + " " + inner.getI() + " " + inner.getD() + " " + inner.getE() + " " + uinner + " " + yinner + "\n");
 					dOut.flush();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				System.out.println(System.currentTimeMillis()-time);
 			}
 			counter++;
 
