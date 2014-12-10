@@ -21,9 +21,9 @@ public class RegulAndIO extends Thread{
 
 	private double period;
 	private PIDController inner;
-	//	private PIDController outer;
+	//private PIDController outer;
 
-	//	private RefGen refGen;
+	//private RefGen refGen;
 
 	private double uMin = -100;
 	private double uMax = 100;
@@ -39,7 +39,7 @@ public class RegulAndIO extends Thread{
 		//this.refGen = refGen; //Use 0 as ref
 
 		//K,Ti,Tr,Td,N,b,H   6.3, 3, 0.9, 0.3, 10, 1, period
-		inner = new PIDController(7.0, 2, 0.91, 0.2, 10, 1, period);
+		inner = new PIDController(9, 3, 0.7, 0.4, 10, 1, period);
 		//outer = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period); //tuning inner loop right now
 
 		//Set up USB contact to send files
@@ -156,7 +156,7 @@ public class RegulAndIO extends Thread{
 					e.printStackTrace();
 				}
 			} else{
-				System.out.println("oops: " + (duration-period));
+//				System.out.println("oops: " + (duration-period));
 			}
 		}
 		//Stop and save on exit
