@@ -11,7 +11,7 @@ public class FeedbackController extends Thread{
 	private NXTRegulatedMotor left = new NXTRegulatedMotor(MotorPort.C);
 	private NXTRegulatedMotor right = new NXTRegulatedMotor(MotorPort.B);
 	private GyroSensor gyro = new GyroSensor(SensorPort.S2);
-	//	private AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
+	private AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
 
 	private double period;
 	private boolean run = true;
@@ -37,18 +37,18 @@ public class FeedbackController extends Thread{
 
 	public void run() {
 		double phi = 0; //Angle
-		double phiDot; //AngleVel
-		double theta;//wheel
-		double thetaDot;//wheel rot speed
+		double phiDot = 0; //AngleVel
+		double theta  = 0;//wheel
+		double thetaDot = 0;//wheel rot speed
 
 		int power;
 		double u, lastU = 0;
 		double ref = 0;
 
-		//		double rad2deg = 180/Math.PI;
+				double rad2deg = 180/Math.PI;
 		double accAng, gyroAng;
-		//		int[] accV = new int[3];
-		double[] lVector = {-1.0000, -23.6256, -1.3765, -3.5405};
+				int[] accV = new int[3];
+		double[] lVector = {-3, 0, -3, 0};
 
 		while (!Button.ESCAPE.isDown()){
 			long t = System.currentTimeMillis();
@@ -58,26 +58,26 @@ public class FeedbackController extends Thread{
 			phiDot = Math.abs(phiDot) < 1 ? 0 : phiDot;
 			gyroAng = phiDot * (double)period;
 
-			//AccelMindSensor: 9ms getAll, 12ms getX+getY
-			//AccelHTSensor: 9ms getAll, 15ms getX+getY
-			//			acc.getAllAccel(accV, 0);
-			//			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
+//			AccelMindSensor: 9ms getAll, 12ms getX+getY
+//			AccelHTSensor: 9ms getAll, 15ms getX+getY
+						acc.getAllAccel(accV, 0);
+						accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
 
 			//want phi --> 0
-			phi = (phi + gyroAng); //* 0.92 + accAng * 0.08;
-			System.out.println("Angle = " + phi);
+			phi = (phi + gyroAng) * 0.92 + accAng * 0.08;
+//			System.out.println("Angle = " + phi);
 
 			theta = (left.getTachoCount()+right.getTachoCount())/2.0;
 			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
 
 			// Power sent to the motors
-			u = ref - ((lVector[0]*phi) + (lVector[1]*theta) + (lVector[2]*phiDot) + (lVector[3]*thetaDot));
+			u = ref + ((lVector[0]*phi) + (lVector[1]*theta) + (lVector[2]*phiDot) + (lVector[3]*thetaDot));
 
 			//Set power and direction
 			power = (int)Math.round(Math.abs(limit(u)));
 
-			left.setSpeed(power);
-			right.setSpeed(power);
+			left.setSpeed((power * left.getMaxSpeed()) / 100);
+			right.setSpeed((power * right.getMaxSpeed()) / 100);
 
 			if (u > 0) {
 				left.backward();
@@ -86,8 +86,8 @@ public class FeedbackController extends Thread{
 				left.forward();
 				right.forward();
 			} else {
-				left.stop();
-				right.stop();
+				left.flt();
+				right.flt();
 			}
 			lastU = u;
 
@@ -102,7 +102,7 @@ public class FeedbackController extends Thread{
 					e.printStackTrace();
 				}
 			} else{
-				System.out.println("oops: " + (duration-period));
+				System.out.println("oops: " + (duration-(period*1000)));
 			}
 		}
 	}
