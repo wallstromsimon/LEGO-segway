@@ -13,7 +13,7 @@ import lejos.nxt.addon.GyroSensor;
 import lejos.nxt.comm.USB;
 import lejos.nxt.comm.USBConnection;
 
-public class RegulAndIO extends Thread{
+public class RegulAndIO extends Thread implements Controller{
 	private NXTMotor left = new NXTMotor(MotorPort.C);
 	private NXTMotor right = new NXTMotor(MotorPort.B);
 	private GyroSensor gyro = new GyroSensor(SensorPort.S2);

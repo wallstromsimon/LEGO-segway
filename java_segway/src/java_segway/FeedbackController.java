@@ -7,7 +7,7 @@ import lejos.nxt.SensorPort;
 import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
 
-public class FeedbackController extends Thread{
+public class FeedbackController extends Thread implements Controller{
 	private NXTRegulatedMotor left = new NXTRegulatedMotor(MotorPort.C);
 	private NXTRegulatedMotor right = new NXTRegulatedMotor(MotorPort.B);
 	private GyroSensor gyro = new GyroSensor(SensorPort.S2);
@@ -35,7 +35,6 @@ public class FeedbackController extends Thread{
 		run = false;
 	}
 
-	//Limit to cap u
 	private double limit(double u) {
 		if (u < -100) {
 			u = -100;
@@ -58,7 +57,7 @@ public class FeedbackController extends Thread{
 		double rad2deg = 180/Math.PI;
 		double accAng, gyroAng;
 		int[] accV = new int[3];
-		double[] lVector = {-3, 0, -3, 0};
+		double[] lVector = {-4, 0, -0.2, -0.01};// :(
 
 		while (run){
 			long t = System.currentTimeMillis();
@@ -82,8 +81,8 @@ public class FeedbackController extends Thread{
 			u = ref + ((lVector[0]*phi) + (lVector[1]*theta) + (lVector[2]*phiDot) + (lVector[3]*thetaDot));
 
 			//Set power and direction
-			power = (int)Math.round(Math.abs((limit(u) * (left.getMaxSpeed() + right.getMaxSpeed())/2.0)/100));
 			
+			power = (int)Math.round(Math.abs((limit(u) * (left.getMaxSpeed() + right.getMaxSpeed())/2.0)/100));
 			left.setSpeed(power);
 			right.setSpeed(power);
 
@@ -93,9 +92,6 @@ public class FeedbackController extends Thread{
 			} else if (u < 0 && lastU >= 0){
 				left.forward();
 				right.forward();
-			} else {
-				left.flt();
-				right.flt();
 			}
 			lastU = u;
 
@@ -112,5 +108,6 @@ public class FeedbackController extends Thread{
 				System.out.println("oops: " + (duration-(period*1000)));
 			}
 		}
+		System.exit(0);
 	}
 }
