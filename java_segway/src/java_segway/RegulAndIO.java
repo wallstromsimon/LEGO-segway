@@ -39,7 +39,7 @@ public class RegulAndIO extends Thread{
 		//this.refGen = refGen; //Use 0 as ref
 
 		//K,Ti,Tr,Td,N,b,H   6.3, 3, 0.9, 0.3, 10, 1, period
-		inner = new PIDController(8.6, 3, 0.7, 0.3, 10, 1, period);
+		inner = new PIDController(5.6, 3, 0.7, 0.25, 10, 1, period);
 		//outer = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period); //tuning inner loop right now
 
 		//Set up USB contact to send files
