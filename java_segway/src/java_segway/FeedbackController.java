@@ -35,6 +35,16 @@ public class FeedbackController extends Thread{
 		run = false;
 	}
 
+	//Limit to cap u
+	private double limit(double u) {
+		if (u < -100) {
+			u = -100;
+		} else if (u > 100) {
+			u = 100;
+		} 
+		return u;
+	}
+
 	public void run() {
 		double phi = 0; //Angle
 		double phiDot = 0; //AngleVel
@@ -45,27 +55,25 @@ public class FeedbackController extends Thread{
 		double u, lastU = 0;
 		double ref = 0;
 
-				double rad2deg = 180/Math.PI;
+		double rad2deg = 180/Math.PI;
 		double accAng, gyroAng;
-				int[] accV = new int[3];
+		int[] accV = new int[3];
 		double[] lVector = {-3, 0, -3, 0};
 
-		while (!Button.ESCAPE.isDown()){
+		while (run){
 			long t = System.currentTimeMillis();
 			long duration;
 
 			phiDot = gyro.getAngularVelocity();	
 			phiDot = Math.abs(phiDot) < 1 ? 0 : phiDot;
-			gyroAng = phiDot * (double)period;
+			gyroAng = phiDot * period;
 
-//			AccelMindSensor: 9ms getAll, 12ms getX+getY
-//			AccelHTSensor: 9ms getAll, 15ms getX+getY
-						acc.getAllAccel(accV, 0);
-						accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
+			//AccelMindSensor: 9ms getAll, 12ms getX+getY
+			//AccelHTSensor: 9ms getAll, 15ms getX+getY
+			acc.getAllAccel(accV, 0);
+			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
 
-			//want phi --> 0
 			phi = (phi + gyroAng) * 0.92 + accAng * 0.08;
-//			System.out.println("Angle = " + phi);
 
 			theta = (left.getTachoCount()+right.getTachoCount())/2.0;
 			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
@@ -74,15 +82,15 @@ public class FeedbackController extends Thread{
 			u = ref + ((lVector[0]*phi) + (lVector[1]*theta) + (lVector[2]*phiDot) + (lVector[3]*thetaDot));
 
 			//Set power and direction
-			power = (int)Math.round(Math.abs(limit(u)));
+			power = (int)Math.round(Math.abs((limit(u) * (left.getMaxSpeed() + right.getMaxSpeed())/2.0)/100));
+			
+			left.setSpeed(power);
+			right.setSpeed(power);
 
-			left.setSpeed((power * left.getMaxSpeed()) / 100);
-			right.setSpeed((power * right.getMaxSpeed()) / 100);
-
-			if (u > 0) {
+			if (u > 0 && lastU <= 0){
 				left.backward();
 				right.backward();
-			} else if (u < 0) {
+			} else if (u < 0 && lastU >= 0){
 				left.forward();
 				right.forward();
 			} else {
@@ -90,7 +98,6 @@ public class FeedbackController extends Thread{
 				right.flt();
 			}
 			lastU = u;
-
 
 			//sleep
 			t = t + (long)(period*1000);
@@ -105,15 +112,5 @@ public class FeedbackController extends Thread{
 				System.out.println("oops: " + (duration-(period*1000)));
 			}
 		}
-	}
-
-	//Limit to cap u
-	private double limit(double u) {
-		if (u < -100) {
-			u = -100;
-		} else if (u > 100) {
-			u = 100;
-		} 
-		return u;
 	}
 }

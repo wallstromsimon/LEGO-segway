@@ -107,7 +107,7 @@ public class RegulAndIO extends Thread{
 			//1ms read gyro
 			angVel = gyro.getAngularVelocity();	
 			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
-			gyroAng = (angVel * (double)period/1000);
+			gyroAng = angVel * period;
 
 			//AccelMindSensor: 9ms getAll, 12ms getX+getY
 			//AccelHTSensor: 9ms getAll, 15ms getX+getY
