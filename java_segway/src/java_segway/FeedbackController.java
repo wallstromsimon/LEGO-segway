@@ -57,7 +57,7 @@ public class FeedbackController extends Thread implements Controller{
 		double rad2deg = 180/Math.PI;
 		double accAng, gyroAng;
 		int[] accV = new int[3];
-		double[] lVector = {-4, 0, -0.2, -0.01};// :(
+		double[] lVector = {-6, 0, -0.25, 0};// :(
 
 		while (run){
 			long t = System.currentTimeMillis();
@@ -72,7 +72,7 @@ public class FeedbackController extends Thread implements Controller{
 			acc.getAllAccel(accV, 0);
 			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
 
-			phi = (phi + gyroAng) * 0.92 + accAng * 0.08;
+			phi = (phi + gyroAng) * 0.985 + accAng * 0.015;
 
 			theta = (left.getTachoCount()+right.getTachoCount())/2.0;
 			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
