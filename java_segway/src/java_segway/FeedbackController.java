@@ -83,7 +83,7 @@ public class FeedbackController extends Thread implements Controller{
 		double accAng, gyroAng;
 		int[] accV = new int[3];
 
-		double[] lVector = {-80, 0, -2.20, 0};// :(
+		double[] lVector = {-40, 0, -2.20, 0};// :(
 
 
 		while (run){
@@ -110,7 +110,6 @@ public class FeedbackController extends Thread implements Controller{
 			u = limit(ref + vPhi + vTheta + vPhidot + vThetaDot);
 
 			//Set power and direction
-			System.out.println(u);
 			power = (int)Math.round(Math.abs((limit(u))));
 
 			left.setSpeed(power);
