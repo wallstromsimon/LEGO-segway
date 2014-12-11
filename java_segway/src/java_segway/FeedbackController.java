@@ -36,10 +36,10 @@ public class FeedbackController extends Thread implements Controller{
 	}
 
 	private double limit(double u) {
-		if (u < -100) {
-			u = -100;
-		} else if (u > 100) {
-			u = 100;
+		if (u < -right.getMaxSpeed()) {
+			u = -right.getMaxSpeed();
+		} else if (u > right.getMaxSpeed()) {
+			u = right.getMaxSpeed();
 		} 
 		return u;
 	}
@@ -57,7 +57,7 @@ public class FeedbackController extends Thread implements Controller{
 		double rad2deg = 180/Math.PI;
 		double accAng, gyroAng;
 		int[] accV = new int[3];
-		double[] lVector = {-6, 0, -0.25, 0};// :(
+		double[] lVector = {-80, 0, -2.20, 0};// :(
 
 		while (run){
 			long t = System.currentTimeMillis();
@@ -81,11 +81,11 @@ public class FeedbackController extends Thread implements Controller{
 			u = ref + ((lVector[0]*phi) + (lVector[1]*theta) + (lVector[2]*phiDot) + (lVector[3]*thetaDot));
 
 			//Set power and direction
-			
-			power = (int)Math.round(Math.abs((limit(u) * (left.getMaxSpeed() + right.getMaxSpeed())/2.0)/100));
+			System.out.println(u);
+			power = (int)Math.round(Math.abs((limit(u))));
 			left.setSpeed(power);
 			right.setSpeed(power);
-
+			
 			if (u > 0 && lastU <= 0){
 				left.backward();
 				right.backward();
