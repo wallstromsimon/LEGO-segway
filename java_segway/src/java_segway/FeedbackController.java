@@ -40,6 +40,9 @@ public class FeedbackController extends Thread implements Controller{
 		right.stop();
 		left.resetTachoCount();
 		right.resetTachoCount();
+		left.setAcceleration(2050);
+		right.setAcceleration(2050);
+
 
 		gyro.recalibrateOffset();
 		LCD.clear();
@@ -82,7 +85,8 @@ public class FeedbackController extends Thread implements Controller{
 		double accAng, gyroAng;
 		int[] accV = new int[3];
 
-		double[] lVector = {-8.4, 0, -0.057, 0};// :(   bäst värden so far {-8,0,-0.05,0}
+		double[] lVector = {-20.8, 0, -0.093, 0};// :(   bäst värden so far {-8.7,0,-0.038,0} utan setAcceleration
+													// med setAcceleration 2100 {-13.8,-0.075,0}
 
 		long t = System.currentTimeMillis();
 
@@ -94,7 +98,7 @@ public class FeedbackController extends Thread implements Controller{
 			//AccelMindSensor: 9ms getAll, 12ms getX+getY
 			//AccelHTSensor: 9ms getAll, 15ms getX+getY
 			acc.getAllAccel(accV, 0);
-			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 88.1;
+			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 88.578;
 
 			phi = (phi + gyroAng) * 0.965 + accAng * 0.035;
 
@@ -146,7 +150,7 @@ public class FeedbackController extends Thread implements Controller{
 					e.printStackTrace();
 				}
 			} else{
-//				System.out.println("oops: " + (duration-(period*1000)));
+				System.out.println("oops: " + (duration-(period*1000)));
 			}
 		}
 		//Stop and save on exit
