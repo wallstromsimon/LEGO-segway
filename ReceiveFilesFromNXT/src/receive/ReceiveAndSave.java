@@ -1,9 +1,6 @@
 package receive;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -32,11 +29,11 @@ public class ReceiveAndSave {
 			System.exit(1);
 		}
 
-//		DataInputStream inDat = new DataInputStream(conn.getInputStream());
-//		DataOutputStream outDat = new DataOutputStream(conn.getOutputStream());
+		//		DataInputStream inDat = new DataInputStream(conn.getInputStream());
+		//		DataOutputStream outDat = new DataOutputStream(conn.getOutputStream());
 		BufferedReader dIn = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 		StringBuffer sb = new StringBuffer();
-		
+
 		String s;
 		boolean run = true;
 		while(run){
@@ -47,15 +44,14 @@ public class ReceiveAndSave {
 				}else{
 					run = false;
 				}
-				System.out.println("Received: " + s);
 			} catch (IOException ioe) {
 				System.err.println("IO Exception reading");
 			}            
 		}
 
 		try {
-//			inDat.close();
-//			outDat.close();
+			//			inDat.close();
+			//			outDat.close();
 			dIn.close();
 			System.out.println("Closed data streams");
 			conn.close();
@@ -65,15 +61,20 @@ public class ReceiveAndSave {
 		}
 
 		System.out.println("Saving file...");
-		File f = new File("data.txt");
+		
+		String filename = "feedbackData.txt";
+//		String filenamr = "PIDData.txt";
+		File f = new File("C:\\Users\\simon\\Documents\\GitHub\\LEGO-segway\\matlab\\" + filename);
+		
 		try {
 			FileOutputStream fos = new  FileOutputStream(f);
 			fos.write(sb.toString().getBytes());
 			fos.close();
+			System.out.println("Saved");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 }
