@@ -21,7 +21,7 @@ public class FeedbackController extends Thread implements Controller{
 
 	private double period;
 	private boolean run = true;
-	private boolean log = true;
+	private boolean log = false;
 
 	private USBConnection conn;
 	private DataOutputStream dOut;
@@ -54,16 +54,15 @@ public class FeedbackController extends Thread implements Controller{
 	}
 
 	private double limit(double u) {
-		if (u < -right.getMaxSpeed()) {
-			u = -right.getMaxSpeed();
-		} else if (u > right.getMaxSpeed()) {
-			u = right.getMaxSpeed();
+		if (u < -100) {
+			u = -100;
+		} else if (u > 100) {
+			u = 100;
 		} 
 		return u;
 	}
 
 	public void run() {
-		long t = System.currentTimeMillis();
 		long duration;
 
 		double phi = 0; //Angle
@@ -83,8 +82,9 @@ public class FeedbackController extends Thread implements Controller{
 		double accAng, gyroAng;
 		int[] accV = new int[3];
 
-		double[] lVector = {-40, 0, -2.20, 0};// :(
+		double[] lVector = {-8.4, 0, -0.057, 0};// :(   bäst värden so far {-8,0,-0.05,0}
 
+		long t = System.currentTimeMillis();
 
 		while (run){
 			phiDot = gyro.getAngularVelocity();	
@@ -94,9 +94,9 @@ public class FeedbackController extends Thread implements Controller{
 			//AccelMindSensor: 9ms getAll, 12ms getX+getY
 			//AccelHTSensor: 9ms getAll, 15ms getX+getY
 			acc.getAllAccel(accV, 0);
-			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
+			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 88.1;
 
-			phi = (phi + gyroAng) * 0.98 + accAng * 0.02;
+			phi = (phi + gyroAng) * 0.965 + accAng * 0.035;
 
 			theta = (left.getTachoCount()+right.getTachoCount())/2.0;
 			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
@@ -110,7 +110,7 @@ public class FeedbackController extends Thread implements Controller{
 			u = limit(ref + vPhi + vTheta + vPhidot + vThetaDot);
 
 			//Set power and direction
-			power = (int)Math.round(Math.abs((limit(u))));
+			power = (int)Math.round(Math.abs((limit(u) * (right.getMaxSpeed() / 100))));
 
 			left.setSpeed(power);
 			right.setSpeed(power);
@@ -138,6 +138,7 @@ public class FeedbackController extends Thread implements Controller{
 			//sleep
 			t = t + (long)(period*1000);
 			duration = t - System.currentTimeMillis();
+//			System.out.println(duration);
 			if (duration > 0) {
 				try {
 					Thread.sleep(duration);
@@ -145,7 +146,7 @@ public class FeedbackController extends Thread implements Controller{
 					e.printStackTrace();
 				}
 			} else{
-				System.out.println("oops: " + (duration-(period*1000)));
+//				System.out.println("oops: " + (duration-(period*1000)));
 			}
 		}
 		//Stop and save on exit

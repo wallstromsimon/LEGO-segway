@@ -115,7 +115,7 @@ public class RegulAndIO extends Thread implements Controller{
 			acc.getAllAccel(accV, 0);
 			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
 
-			yinner = (yinner + gyroAng) * 0.92 + accAng * 0.08;
+			yinner = (yinner + gyroAng) * 0.98 + accAng * 0.02;
 			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner, ref))));//uouter
 
 			//Set power and direction
