@@ -82,7 +82,7 @@ public class FeedbackController extends Thread implements Controller{
 		double rad2deg = 180/Math.PI;
 		double accAng, gyroAng;
 		int[] accV = new int[3];
-		double[] lVector = {-6, 0, -0.25, 0};// :(
+		double[] lVector = {-12, 0, -0.2, 0};// :(
 
 		while (run){
 			phiDot = gyro.getAngularVelocity();	
@@ -94,7 +94,7 @@ public class FeedbackController extends Thread implements Controller{
 			acc.getAllAccel(accV, 0);
 			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
 
-			phi = (phi + gyroAng) * 0.985 + accAng * 0.015;
+			phi = (phi + gyroAng) * 0.98 + accAng * 0.02;
 
 			theta = (left.getTachoCount()+right.getTachoCount())/2.0;
 			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
@@ -105,11 +105,10 @@ public class FeedbackController extends Thread implements Controller{
 			vPhidot = lVector[2]*phiDot;
 			vThetaDot = lVector[3]*thetaDot;
 			
-			u = ref + (vPhi + vTheta + vPhidot + vThetaDot);
+			u = limit(ref + vPhi + vTheta + vPhidot + vThetaDot);
 
 			//Set power and direction
-
-			power = (int)Math.round(Math.abs((limit(u) * (left.getMaxSpeed() + right.getMaxSpeed())/2.0)/100));
+			power = (int)Math.round(Math.abs((u * ((left.getMaxSpeed() + right.getMaxSpeed())/2.0)/100)));
 			left.setSpeed(power);
 			right.setSpeed(power);
 
