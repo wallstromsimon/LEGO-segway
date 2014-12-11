@@ -58,13 +58,13 @@ dt=0.001;
 t=0:dt:5;
 
 %Initial condition
-X0=[0 5*pi/180 0 0]';
+X0=[0 0 0 0]';
 
 % Plots for R1
 %open loop response
 figure(11), clf
 y_open=initial(ss_open,X0,t); %simulated response with initial condition
-open_loop_poles=eig(A)
+open_loop_poles=eig(A);
 
 
 for n=1:4
@@ -92,7 +92,7 @@ ylabel('Control effort (u)')
 figure(12); clf
 y1 = initial(ss_closed,X0,t);
 
-closed_loop_poles_R_1 = eig(A-B*K1)
+closed_loop_poles_R_1 = eig(A-B*K1);
 
 for n=1:4
     subplot(5,1,n)
