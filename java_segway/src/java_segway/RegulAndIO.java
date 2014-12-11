@@ -29,7 +29,7 @@ public class RegulAndIO extends Thread implements Controller{
 	private double uMax = 100;
 
 	private boolean run = true;
-	private boolean log = true;
+	private boolean log = false;
 
 	private USBConnection conn;
 	private DataOutputStream dOut;
@@ -88,12 +88,13 @@ public class RegulAndIO extends Thread implements Controller{
 		double accAng = 0;
 		int[] accV = new int[3];
 
-		//		double youter,uouter;
+		//double youter,uouter;
 		double yinner = 0, ref;
 		int power, uinner, lastUinner = 0;
 
 		double rad2deg = 180/Math.PI;
-		//		double deg2rad = Math.PI/180;
+		//double deg2rad = Math.PI/180;
+		
 		long counter = 0;//used when saving data
 
 		while(run){//12ms with accelerometer

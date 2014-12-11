@@ -29,7 +29,7 @@ public class PIDController {
 	}
 
 	public synchronized void updateState(double uNew){
-		if(Ti != 0 && Tr !=0){
+		if(Ti != 0 && Tr !=0){ //If Ti == 0 -> I =0
 			I += (K * h / Ti) * e + (h / Tr) * (uNew - u);
 		}else{
 			I = 0.0;
