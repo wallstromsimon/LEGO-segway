@@ -82,7 +82,7 @@ public class FeedbackController extends Thread implements Controller{
 		double accAng, gyroAng;
 		int[] accV = new int[3];
 
-		double[] lVector = {-8.4, 0, -0.057, 0};// :(   bäst värden so far {-8,0,-0.05,0}
+		double[] lVector = {-8.4, 0, -0.057, 0};//bäst värden so far {-8,0,-0.05,0}
 
 		long t = System.currentTimeMillis();
 
@@ -110,6 +110,7 @@ public class FeedbackController extends Thread implements Controller{
 			u = limit(ref + vPhi + vTheta + vPhidot + vThetaDot);
 
 			//Set power and direction
+			//Power = u% of max speed of the motor.
 			power = (int)Math.round(Math.abs((limit(u) * (right.getMaxSpeed() / 100))));
 
 			left.setSpeed(power);
