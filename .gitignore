@@ -3,6 +3,7 @@
 *.autosave
 *.nxj
 *.nxd
+*.stackdump
 
 # LaTeX stuff #
 ###############
