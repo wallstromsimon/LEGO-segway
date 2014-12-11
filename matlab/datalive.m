@@ -1,4 +1,4 @@
-data = load('data\livedata.txt');
+data = load('dataOld\livedata.txt');
 
 plot(data,'*-')
 grid

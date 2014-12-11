@@ -1,5 +1,5 @@
 clear all
-load data.txt
+load data.txt %PIDData nästa gång.
 
 figure % create new figure
 subplot(2,1,1) % first subplot
