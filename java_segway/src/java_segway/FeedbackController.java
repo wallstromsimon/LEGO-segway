@@ -81,7 +81,7 @@ public class FeedbackController extends Thread implements Controller{
 
 		int counter = 0;
 
-		float[] lVector = {-20.7f,0,-0.255f,0};
+		float[] lVector = {-23.8f, 0, -0.155f, 0};
 		
 		float gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
 		float accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
@@ -104,13 +104,13 @@ public class FeedbackController extends Thread implements Controller{
 			//Gyro calc wieh hardcoded HP for h = 0.02 
 			phiDot = gyro.getAngularVelocity();	
 			gyroAngle += phiDot * period;
-			gyroF = 0.8182f * lastGyroF + 0.9091f * gyroAngle - 0.9091f * lastGyroAngle;
+			gyroF = 0.9048f * lastGyroF + 0.9524f * gyroAngle - 0.9524f * lastGyroAngle;
 
 			//Acc calc with hardcoded LP for h = 0.02 
 			accAngle = acc.getYTilt();
-			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;
+			accF = 0.99f * lastAccF + 0.004975f * accAngle + 0.004975f * lastAccAngle;
 			
-			phi = gyroF + accF - 1.645f;
+			phi = gyroF + accF - 1.525f;
 
 			theta = (float) ((left.getTachoCount()+right.getTachoCount())/2.0);
 //			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
