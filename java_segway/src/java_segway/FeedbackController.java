@@ -6,7 +6,7 @@ import java.io.IOException;
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.MotorPort;
-import lejos.nxt.NXTRegulatedMotor;
+import lejos.nxt.NXTMotor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
@@ -14,10 +14,10 @@ import lejos.nxt.comm.USB;
 import lejos.nxt.comm.USBConnection;
 
 public class FeedbackController extends Thread implements Controller{
-	private NXTRegulatedMotor left = new NXTRegulatedMotor(MotorPort.C);
-	private NXTRegulatedMotor right = new NXTRegulatedMotor(MotorPort.B);
-	private GyroSensor gyro = new GyroSensor(SensorPort.S2);
-	private AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
+	private NXTMotor left;
+	private NXTMotor right;
+	private GyroSensor gyro;
+	private AccelMindSensor acc;
 
 	private double period;
 	private boolean run = true;
@@ -28,28 +28,19 @@ public class FeedbackController extends Thread implements Controller{
 
 	public FeedbackController(double period){
 		this.period = period;
-
+  
+		this.setPriority(MAX_PRIORITY);
+		
+		left = new NXTMotor(MotorPort.C);
+		right = new NXTMotor(MotorPort.B);
+		gyro = new GyroSensor(SensorPort.S2);
+		acc = new AccelMindSensor(SensorPort.S3);
+		
 		if(log){
 			LCD.drawString("waiting", 0, 0);
 			conn = USB.waitForConnection();
 			dOut = conn.openDataOutputStream();
 		}
-
-		System.out.println("Calibrating...");
-		left.stop();
-		right.stop();
-		left.resetTachoCount();
-		right.resetTachoCount();
-		left.setAcceleration(2050);
-		right.setAcceleration(2050);
-
-
-		gyro.recalibrateOffset();
-		LCD.clear();
-		System.out.println("Calibrated, hold robot and press enter to balance");
-		Button.ENTER.waitForPress();
-		LCD.clear();
-		System.out.println("\"Balancing\"");
 	}
 
 	public void kill(){
@@ -85,11 +76,26 @@ public class FeedbackController extends Thread implements Controller{
 		double accAng, gyroAng;
 		int[] accV = new int[3];
 
-		double[] lVector = {-13.8, 0, -0.083, 0};// :(   bäst värden so far {-8.7,0,-0.038,0} utan setAcceleration
+		double[] lVector = {-8.7,0,-0.038,0};// :(   bäst värden so far {-8.7,0,-0.038,0} utan setAcceleration
 													// med setAcceleration 2100 {-13.8,-0.075,0}
+		
+		System.out.println("Calibrating...");
+		left.stop();
+		right.stop();
+		left.resetTachoCount();
+		right.resetTachoCount();
+//		left.setAcceleration(2050);
+//		right.setAcceleration(2050);
 
+
+		gyro.recalibrateOffset();
+		LCD.clear();
+		System.out.println("Calibrated, hold robot and press enter to balance");
+		Button.ENTER.waitForPress();
+		LCD.clear();
+		System.out.println("\"Balancing\"");
+		
 		long t = System.currentTimeMillis();
-
 		while (run){
 			phiDot = gyro.getAngularVelocity();	
 			phiDot = Math.abs(phiDot) < 1 ? 0 : phiDot;
@@ -103,7 +109,7 @@ public class FeedbackController extends Thread implements Controller{
 			phi = (phi + gyroAng) * 0.965 + accAng * 0.035;
 
 			theta = (left.getTachoCount()+right.getTachoCount())/2.0;
-			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
+//			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
 
 			// Power sent to the motors
 			vPhi = lVector[0]*phi;
@@ -115,10 +121,10 @@ public class FeedbackController extends Thread implements Controller{
 
 			//Set power and direction
 			//Power = u% of max speed of the motor.
-			power = (int)Math.round(Math.abs((limit(u) * (right.getMaxSpeed() / 100))));
+			power = (int)Math.round(Math.abs((limit(u+3))));
 
-			left.setSpeed(power);
-			right.setSpeed(power);
+			left.setPower(power);
+			right.setPower(power);
 			
 			if (u > 0 && lastU <= 0){
 				left.backward();

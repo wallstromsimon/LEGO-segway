@@ -5,6 +5,6 @@ hold on
 bode(Ghp)
 bode(Glp)
 hold off
-h = 0.3;
+h = 0.02;
 Hhp = c2d(Ghp,h ,'tustin')
 Hlp = c2d(Glp,h ,'tustin')
