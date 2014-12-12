@@ -19,19 +19,25 @@ public class FeedbackController extends Thread implements Controller{
 	private GyroSensor gyro;
 	private AccelMindSensor acc;
 
-	private double period;
+	private float period;
 	private boolean run;
 	private boolean log;
+	
+	private float uMin;
+	private float uMax;
 
 	private USBConnection conn;
 	private DataOutputStream dOut;
 
-	public FeedbackController(double period){
+	public FeedbackController(float period){
 		this.period = period;
 		this.setPriority(MAX_PRIORITY);
 		
 		run = true;
 		log = false;
+		
+		uMin = -100;
+		uMax = 100;
 		
 		left = new NXTMotor(MotorPort.C);
 		right = new NXTMotor(MotorPort.B);
@@ -50,10 +56,10 @@ public class FeedbackController extends Thread implements Controller{
 	}
 
 	private float limit(float u) {
-		if (u < -100) {
-			u = -100;
-		} else if (u > 100) {
-			u = 100;
+		if (u < uMin) {
+			u = uMin;
+		} else if (u > uMax) {
+			u = uMax;
 		} 
 		return u;
 	}

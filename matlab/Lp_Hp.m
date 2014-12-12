@@ -4,6 +4,9 @@ Glp = 1/(s+1);
 hold on
 bode(Ghp)
 bode(Glp)
+title('High and low pass filter')
+legend('High pass','Low pass')
+grid
 hold off
 h = 0.02;
 Hhp = c2d(Ghp,h ,'tustin')

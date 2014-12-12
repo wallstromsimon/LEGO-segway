@@ -14,33 +14,44 @@ import lejos.nxt.comm.USB;
 import lejos.nxt.comm.USBConnection;
 
 public class RegulAndIO extends Thread implements Controller{
-	private NXTMotor left = new NXTMotor(MotorPort.C);
-	private NXTMotor right = new NXTMotor(MotorPort.B);
-	private GyroSensor gyro = new GyroSensor(SensorPort.S2);
-	private AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
+	private NXTMotor left;
+	private NXTMotor right;
+	private GyroSensor gyro;
+	private AccelMindSensor acc;
 
-	private double period;
+	private float period;
 	private PIDController inner;
 	//private PIDController outer;
 
 	//private RefGen refGen;
 
-	private double uMin = -100;
-	private double uMax = 100;
+	private float uMin;
+	private float uMax;
 
-	private boolean run = true;
-	private boolean log = false;
+	private boolean run;
+	private boolean log;
 
 	private USBConnection conn;
 	private DataOutputStream dOut;
 
-	public RegulAndIO(double period) {
+	public RegulAndIO(float period) {
+		this.setPriority(MAX_PRIORITY);
 		this.period = period;
 		//this.refGen = refGen; //Use 0 as ref
 
 		//K,Ti,Tr,Td,N,b,H   6.3, 3, 0.9, 0.3, 10, 1, period
-		inner = new PIDController(5.6, 3, 0.7, 0.25, 10, 1, period);
+		inner = new PIDController(5.6f, 3f, 0.7f, 0.25f, 10f, 1f, period);
 		//outer = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period); //tuning inner loop right now
+
+		left = new NXTMotor(MotorPort.C);
+		right = new NXTMotor(MotorPort.B);
+		gyro = new GyroSensor(SensorPort.S2);
+		acc = new AccelMindSensor(SensorPort.S3);
+
+		run = true;
+		log = false;
+		uMin = -100;
+		uMax = 100;
 
 		//Set up USB contact to send files
 		if(log){
@@ -48,6 +59,38 @@ public class RegulAndIO extends Thread implements Controller{
 			conn = USB.waitForConnection();
 			dOut = conn.openDataOutputStream();
 		}
+	}
+
+	//Limit to cap u
+	private float limit(float u){
+		if (u < uMin) {
+			u = uMin;
+		} else if (u > uMax){
+			u = uMax;
+		} 
+		return u;
+	}
+
+	//Kill robot when ESC is pressed, called from OpCom
+	public synchronized void kill(){
+		run = false;
+	}
+
+	public void run(){
+		long duration;
+
+		float angVel = 0;
+		
+		//float youter,uouter;
+		
+		int power, uinner, lastUinner = 0;
+		float yinner = 0;
+		float ref = 0;
+		
+		float gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
+		float accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
+
+		int counter = 0;//used when saving data
 
 		//Starting and calibrating
 		System.out.println("Calibrating...");
@@ -62,61 +105,24 @@ public class RegulAndIO extends Thread implements Controller{
 		Button.ENTER.waitForPress();
 		LCD.clear();
 		System.out.println("\"Balancing\"");
-	}
-
-	//Limit to cap u
-	private double limit(double u) {
-		if (u < uMin) {
-			u = uMin;
-		} else if (u > uMax) {
-			u = uMax;
-		} 
-		return u;
-	}
-
-	//Kill robot when ESC is pressed, called from OpCom
-	public synchronized void kill(){
-		run = false;
-	}
-
-	public void run(){
-		long t = System.currentTimeMillis();
-		long duration;
-
-		double angVel = 0;
-		double gyroAng = 0;
-		double accAng = 0;
-		int[] accV = new int[3];
-
-		//double youter,uouter;
-		double yinner = 0, ref;
-		int power, uinner, lastUinner = 0;
-
-		double rad2deg = 180/Math.PI;
-		//double deg2rad = Math.PI/180;
 		
-		long counter = 0;//used when saving data
-
-		while(run){//12ms with accelerometer
-			ref = 0;//refGen.getRef();
-
-			//Calculate outer loop
-			//youter = (left.getTachoCount()+right.getTachoCount())/2*deg2rad;
-			//uouter = outer.calculateOutput(youter, ref);
-
-			//Calculate inner loop
-			//1ms read gyro
+		long t = System.currentTimeMillis();
+		
+		while(run){
+//			ref = 0;
+			
+			//Gyro calc wieh hardcoded HP for h = 0.02 
 			angVel = gyro.getAngularVelocity();	
-			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
-			gyroAng = angVel * period;
+			gyroAngle += angVel * period;
+			gyroF = 0.8182f * lastGyroF + 0.9091f * gyroAngle - 0.9091f * lastGyroAngle;
 
-			//AccelMindSensor: 9ms getAll, 12ms getX+getY
-			//AccelHTSensor: 9ms getAll, 15ms getX+getY
-			acc.getAllAccel(accV, 0);
-			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 90;
+			//Acc calc with hardcoded LP for h = 0.02 
+			accAngle = acc.getYTilt();
+			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;
+			
+			yinner = gyroF + accF;
 
-			yinner = (yinner + gyroAng) * 0.98 + accAng * 0.02;
-			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner, ref))));//uouter
+			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner, ref))));//uouter som ref
 
 			//Set power and direction
 			power = Math.abs(uinner);
@@ -130,8 +136,13 @@ public class RegulAndIO extends Thread implements Controller{
 				left.forward();
 				right.forward();
 			}
+			//Update stuff
+			lastGyroF = gyroF;
+			lastGyroAngle = gyroAngle;
+			lastAccF = accF;
+			lastAccAngle = accAngle;
 			lastUinner = uinner;
-
+			
 			//Save data, ~16ms
 			if(log && counter%10==0){
 				try {
@@ -157,7 +168,7 @@ public class RegulAndIO extends Thread implements Controller{
 					e.printStackTrace();
 				}
 			} else{
-//				System.out.println("oops: " + (duration-period));
+				//				System.out.println("oops: " + (duration-period));
 			}
 		}
 		//Stop and save on exit

@@ -9,7 +9,7 @@ grid
 plot(feedbackData(:,3), 'g')
 plot(feedbackData(:,5), 'k')
 title('Segway vinkel och vinkelhastighet')
-legend('Phi','PhiDot','u')
+legend('Phi','PhiDot','u', 'location', 'northwest')
 hold off
 
 subplot(2,1,2) % second subplot
@@ -19,5 +19,5 @@ grid
 plot(feedbackData(:,4), 'g')
 plot(feedbackData(:,5), 'k')
 title('Segway vinkel och vinkelhastighet, begränsad')
-legend('vPhi','vPhiDot','u')
+legend('L1 * Phi','L3 * PhiDot','u', 'location', 'northwest')
 hold off
