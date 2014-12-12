@@ -9,8 +9,10 @@ grid
 plot(data(:,2), 'r')
 plot(data(:,3), 'g')
 plot(data(:,5), 'k')
-title('Controller variables')
+title('P, I, D variables and output power')
 legend('p','i','d','u')
+ylabel('%-power')
+xlabel('periods')
 hold off
 
 subplot(2,1,2) % second subplot
@@ -19,6 +21,8 @@ hold on
 grid
 plot(data(:,5), 'k')
 plot(data(:,6), 'm')
-title('Oth typ vinklar n shit')
+title('Angle, error and output power')
 legend('e','u', 'y')
+ylabel('%-power, deg')
+xlabel('periods')
 hold off
