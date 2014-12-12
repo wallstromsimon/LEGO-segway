@@ -2,8 +2,6 @@ package java_segway;
 
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
-import lejos.nxt.MotorPort;
-import lejos.nxt.NXTMotor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
@@ -11,32 +9,23 @@ import lejos.nxt.addon.GyroSensor;
 public class FilterTest {
 
 	public static void main(String[] args){
-//		NXTMotor left = new NXTMotor(MotorPort.C);
-//		NXTMotor right = new NXTMotor(MotorPort.B);
 		GyroSensor gyro = new GyroSensor(SensorPort.S2);
 		AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
 
 		gyro.recalibrateOffset();
 		
-		double ang = 0, angVel;
-		double rad2deg = 180/Math.PI;
 		double period = 0.02;
 		long t = System.currentTimeMillis();
 		long duration;
 		int count = 0;
-		int[] accV = new int[3];
 		
+		double ang = 0, angVel;
 		double gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
 		double accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
 		
-		double accX;
-		
-		long time;
-
 		while(!Button.ESCAPE.isDown()){
-			time = System.currentTimeMillis();
 			angVel = gyro.getAngularVelocity();	
-			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
+//			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAngle += angVel * period;
 
 			//Hardcoded HP for h = 0.02 

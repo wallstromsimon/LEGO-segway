@@ -20,16 +20,18 @@ public class FeedbackController extends Thread implements Controller{
 	private AccelMindSensor acc;
 
 	private double period;
-	private boolean run = true;
-	private boolean log = false;
+	private boolean run;
+	private boolean log;
 
 	private USBConnection conn;
 	private DataOutputStream dOut;
 
 	public FeedbackController(double period){
 		this.period = period;
-  
 		this.setPriority(MAX_PRIORITY);
+		
+		run = true;
+		log = false;
 		
 		left = new NXTMotor(MotorPort.C);
 		right = new NXTMotor(MotorPort.B);
@@ -62,7 +64,7 @@ public class FeedbackController extends Thread implements Controller{
 		double phi = 0; //Angle
 		double phiDot = 0; //AngleVel
 		double theta  = 0;//wheel
-		double thetaDot = 0;//wheel rot speed
+		double thetaDot = 0;//wheel rot speed, uppdateras aldrig.
 
 		double vPhi, vPhidot, vTheta, vThetaDot;
 		
@@ -72,21 +74,16 @@ public class FeedbackController extends Thread implements Controller{
 
 		int counter = 0;
 
-		double rad2deg = 180/Math.PI;
-		double accAng, gyroAng;
-		int[] accV = new int[3];
-
-		double[] lVector = {-8.7,0,-0.038,0};// :(   bäst värden so far {-8.7,0,-0.038,0} utan setAcceleration
-													// med setAcceleration 2100 {-13.8,-0.075,0}
+		double[] lVector = {-8.7,0,-0.038,0};// bäst värden so far {-8.7,0,-0.038,0} utan setAcceleration
+		
+		double gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
+		double accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
 		
 		System.out.println("Calibrating...");
 		left.stop();
 		right.stop();
 		left.resetTachoCount();
 		right.resetTachoCount();
-//		left.setAcceleration(2050);
-//		right.setAcceleration(2050);
-
 
 		gyro.recalibrateOffset();
 		LCD.clear();
@@ -97,16 +94,16 @@ public class FeedbackController extends Thread implements Controller{
 		
 		long t = System.currentTimeMillis();
 		while (run){
+			//Gyro calc wieh hardcoded HP for h = 0.02 
 			phiDot = gyro.getAngularVelocity();	
-			phiDot = Math.abs(phiDot) < 1 ? 0 : phiDot;
-			gyroAng = phiDot * period;
+			gyroAngle += phiDot * period;
+			gyroF = 0.8182 * lastGyroF + 0.9091 * gyroAngle - 0.9091 * lastGyroAngle;
 
-			//AccelMindSensor: 9ms getAll, 12ms getX+getY
-			//AccelHTSensor: 9ms getAll, 15ms getX+getY
-			acc.getAllAccel(accV, 0);
-			accAng = -Math.atan2(accV[0], accV[1])*rad2deg + 88.578;
-
-			phi = (phi + gyroAng) * 0.965 + accAng * 0.035;
+			//Acc calc with hardcoded LP for h = 0.02 
+			accAngle = acc.getYTilt();
+			accF = 0.9802 * lastAccF + 0.009901 * accAngle + 0.009901 * lastAccAngle;
+			
+			phi = gyroF + accF;
 
 			theta = (left.getTachoCount()+right.getTachoCount())/2.0;
 //			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
@@ -120,8 +117,7 @@ public class FeedbackController extends Thread implements Controller{
 			u = limit(ref + vPhi + vTheta + vPhidot + vThetaDot);
 
 			//Set power and direction
-			//Power = u% of max speed of the motor.
-			power = (int)Math.round(Math.abs((limit(u+3))));
+			power = (int)Math.round(Math.abs((limit(u)))+3);
 
 			left.setPower(power);
 			right.setPower(power);
@@ -133,6 +129,12 @@ public class FeedbackController extends Thread implements Controller{
 				left.forward();
 				right.forward();
 			}
+			
+			//Update stuff
+			lastGyroF = gyroF;
+			lastGyroAngle = gyroAngle;
+			lastAccF = accF;
+			lastAccAngle = accAngle;
 			lastU = u;
 
 			//Save data, ~16ms
@@ -149,7 +151,6 @@ public class FeedbackController extends Thread implements Controller{
 			//sleep
 			t = t + (long)(period*1000);
 			duration = t - System.currentTimeMillis();
-//			System.out.println(duration);
 			if (duration > 0) {
 				try {
 					Thread.sleep(duration);
