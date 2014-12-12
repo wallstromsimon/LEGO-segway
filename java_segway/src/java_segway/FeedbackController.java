@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
+import lejos.nxt.Motor;
 import lejos.nxt.MotorPort;
 import lejos.nxt.NXTMotor;
 import lejos.nxt.SensorPort;
@@ -80,7 +81,7 @@ public class FeedbackController extends Thread implements Controller{
 
 		int counter = 0;
 
-		float[] lVector = {-8.7f,0,-0.038f,0};// bäst värden so far {-8.7,0,-0.038,0} utan setAcceleration
+		float[] lVector = {-20.7f,0,-0.255f,0};
 		
 		float gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
 		float accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
@@ -109,7 +110,7 @@ public class FeedbackController extends Thread implements Controller{
 			accAngle = acc.getYTilt();
 			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;
 			
-			phi = gyroF + accF;
+			phi = gyroF + accF - 1.645f;
 
 			theta = (float) ((left.getTachoCount()+right.getTachoCount())/2.0);
 //			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
