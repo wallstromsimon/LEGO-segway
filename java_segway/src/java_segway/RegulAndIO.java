@@ -40,7 +40,7 @@ public class RegulAndIO extends Thread implements Controller{
 		//this.refGen = refGen; //Use 0 as ref
 
 		//K,Ti,Tr,Td,N,b,H   6.3, 3, 0.9, 0.3, 10, 1, period
-		inner = new PIDController(5.6f, 3f, 0.7f, 0.25f, 10f, 1f, period);
+		inner = new PIDController(9f, 2f, 1f, 0.1f, 10f, 1f, period);
 		//outer = new PIDController(6.3, 3, 0.9, 0.3, 10, 1, period); //tuning inner loop right now
 
 		left = new NXTMotor(MotorPort.C);
@@ -49,7 +49,7 @@ public class RegulAndIO extends Thread implements Controller{
 		acc = new AccelMindSensor(SensorPort.S3);
 
 		run = true;
-		log = false;
+		log = true;
 		uMin = -100;
 		uMax = 100;
 
@@ -111,16 +111,18 @@ public class RegulAndIO extends Thread implements Controller{
 		while(run){
 //			ref = 0;
 			
-			//Gyro calc wieh hardcoded HP for h = 0.02 
+			//Gyro calc wieh hardcoded HP for h = 0.01 resp 0.02 
 			angVel = gyro.getAngularVelocity();	
 			gyroAngle += angVel * period;
-			gyroF = 0.8182f * lastGyroF + 0.9091f * gyroAngle - 0.9091f * lastGyroAngle;
-
-			//Acc calc with hardcoded LP for h = 0.02 
-			accAngle = acc.getYTilt();
-			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;
+			gyroF = 0.9048f * lastGyroF + 0.9524f * gyroAngle - 0.9524f * lastGyroAngle;//10ms period
+			gyroF = 0.8182f * lastGyroF + 0.9091f * gyroAngle - 0.9091f * lastGyroAngle;//10ms period
 			
-			yinner = gyroF + accF;
+			//Acc calc with hardcoded LP for h = 0.01 resp 0.02 
+			accAngle = acc.getYTilt();
+//			accF = 0.99f * lastAccF + 0.004975f * accAngle + 0.004975f * lastAccAngle;//10ms period
+			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;//10ms period
+			
+			yinner = gyroF + accF - 1.525f;
 
 			uinner = (int)(Math.round(limit(inner.calculateOutput(yinner, ref))));//uouter som ref
 

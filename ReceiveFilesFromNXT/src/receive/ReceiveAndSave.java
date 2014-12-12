@@ -62,10 +62,10 @@ public class ReceiveAndSave {
 
 		System.out.println("Saving file...");
 		
-		String filename = "feedbackData.txt";
-//		String filenamr = "PIDData.txt";
-//		File f = new File("C:\\Users\\simon\\Documents\\GitHub\\LEGO-segway\\matlab\\" + filename);
-		File f = new File("C:\\Users\\Jonathan\\Documents\\GitHub\\LEGO-segway\\matlab\\" + filename);
+//		String filename = "feedbackData.txt";
+		String filename = "PIDData.txt";
+		File f = new File("C:\\Users\\simon\\Documents\\GitHub\\LEGO-segway\\matlab\\" + filename);
+//		File f = new File("C:\\Users\\Jonathan\\Documents\\GitHub\\LEGO-segway\\matlab\\" + filename);
 
 		
 		try {

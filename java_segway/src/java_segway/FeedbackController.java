@@ -35,7 +35,7 @@ public class FeedbackController extends Thread implements Controller{
 		this.setPriority(MAX_PRIORITY);
 		
 		run = true;
-		log = false;
+		log = true;
 		
 		uMin = -100;
 		uMax = 100;
@@ -104,11 +104,13 @@ public class FeedbackController extends Thread implements Controller{
 			//Gyro calc wieh hardcoded HP for h = 0.02 
 			phiDot = gyro.getAngularVelocity();	
 			gyroAngle += phiDot * period;
-			gyroF = 0.9048f * lastGyroF + 0.9524f * gyroAngle - 0.9524f * lastGyroAngle;
-
-			//Acc calc with hardcoded LP for h = 0.02 
+//			gyroF = 0.9048f * lastGyroF + 0.9524f * gyroAngle - 0.9524f * lastGyroAngle;//10ms period
+			gyroF = 0.8182f * lastGyroF + 0.9091f * gyroAngle - 0.9091f * lastGyroAngle;//20ms period
+			
+			//Acc calc with hardcoded LP for h = 0.01 resp 0.02 
 			accAngle = acc.getYTilt();
-			accF = 0.99f * lastAccF + 0.004975f * accAngle + 0.004975f * lastAccAngle;
+//			accF = 0.99f * lastAccF + 0.004975f * accAngle + 0.004975f * lastAccAngle;//10ms period
+			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;//20ms period
 			
 			phi = gyroF + accF - 1.525f;
 
