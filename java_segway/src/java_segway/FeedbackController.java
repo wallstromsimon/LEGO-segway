@@ -49,7 +49,7 @@ public class FeedbackController extends Thread implements Controller{
 		run = false;
 	}
 
-	private double limit(double u) {
+	private float limit(float u) {
 		if (u < -100) {
 			u = -100;
 		} else if (u > 100) {
@@ -61,23 +61,23 @@ public class FeedbackController extends Thread implements Controller{
 	public void run() {
 		long duration;
 
-		double phi = 0; //Angle
-		double phiDot = 0; //AngleVel
-		double theta  = 0;//wheel
-		double thetaDot = 0;//wheel rot speed, uppdateras aldrig.
+		float phi = 0; //Angle
+		float phiDot = 0; //AngleVel
+		float theta  = 0;//wheel
+		float thetaDot = 0;//wheel rot speed, uppdateras aldrig.
 
-		double vPhi, vPhidot, vTheta, vThetaDot;
+		float vPhi, vPhidot, vTheta, vThetaDot;
 		
 		int power;
-		double u, lastU = 0;
-		double ref = 0;
+		float u, lastU = 0;
+		float ref = 0;
 
 		int counter = 0;
 
-		double[] lVector = {-8.7,0,-0.038,0};// bäst värden so far {-8.7,0,-0.038,0} utan setAcceleration
+		float[] lVector = {-8.7f,0,-0.038f,0};// bäst värden so far {-8.7,0,-0.038,0} utan setAcceleration
 		
-		double gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
-		double accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
+		float gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
+		float accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
 		
 		System.out.println("Calibrating...");
 		left.stop();
@@ -97,15 +97,15 @@ public class FeedbackController extends Thread implements Controller{
 			//Gyro calc wieh hardcoded HP for h = 0.02 
 			phiDot = gyro.getAngularVelocity();	
 			gyroAngle += phiDot * period;
-			gyroF = 0.8182 * lastGyroF + 0.9091 * gyroAngle - 0.9091 * lastGyroAngle;
+			gyroF = 0.8182f * lastGyroF + 0.9091f * gyroAngle - 0.9091f * lastGyroAngle;
 
 			//Acc calc with hardcoded LP for h = 0.02 
 			accAngle = acc.getYTilt();
-			accF = 0.9802 * lastAccF + 0.009901 * accAngle + 0.009901 * lastAccAngle;
+			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;
 			
 			phi = gyroF + accF;
 
-			theta = (left.getTachoCount()+right.getTachoCount())/2.0;
+			theta = (float) ((left.getTachoCount()+right.getTachoCount())/2.0);
 //			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
 
 			// Power sent to the motors
@@ -117,7 +117,7 @@ public class FeedbackController extends Thread implements Controller{
 			u = limit(ref + vPhi + vTheta + vPhidot + vThetaDot);
 
 			//Set power and direction
-			power = (int)Math.round(Math.abs((limit(u)))+3);
+			power = (int)Math.round(Math.abs(u)+3);
 
 			left.setPower(power);
 			right.setPower(power);
