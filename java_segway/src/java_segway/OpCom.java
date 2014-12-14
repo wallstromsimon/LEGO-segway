@@ -15,10 +15,10 @@ public class OpCom{
 
 			@Override
 			public void buttonReleased(Button b) {
-				
+
 			}
 		});
-		
+
 		Button.LEFT.addButtonListener(new ButtonListener() {
 			@Override
 			public void buttonPressed(Button b) {
@@ -27,21 +27,19 @@ public class OpCom{
 
 			@Override
 			public void buttonReleased(Button b) {
-				
+
 			}
 		});
-		
+
 		Button.RIGHT.addButtonListener(new ButtonListener() {
 			@Override
 			public void buttonPressed(Button b) {
 				System.out.println("Right button pushed...");
 			}
-			
+
 			@Override
 			public void buttonReleased(Button b) {
 			}
 		});
 	}
-	
-		
 }

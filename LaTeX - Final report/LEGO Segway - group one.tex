@@ -17,8 +17,7 @@ FRTN01 - Real time systems}
 \author{Simon Wallström, dat11swa@student.lu.se\\
 Adam Dalentoft, dat11ada@student.lu.se\\
 Jonathan Karlsson, ada09jka@student.lu.se\\\\
-Supervisor: Victor Millnert
-}
+Supervisor: Victor Millnert}
 %\date{1 augusti 1994}        % Blir dagens datum om det utelämnas
 \begin{document}              % Början på dokumentet
 
@@ -39,7 +38,7 @@ The goal of this project is to build and control a two-wheeled robot - a Lego Se
 
 Before the implementation can begin it is a good idea to set up a model of the process. The process is described in the picture, including the different variables that is needed to calculate the movements in the system. These variables are then used to calculate the state-space form for the system, describing the equation L = T - V. The state-space form of the system can thereafter be used in matlab and simulink to describe a control system for the segway. Simulink can also be used to make a simulation of the calculated system to determine parameters for the PID-controllers. \\
 
-To implement the controller a Java version for Lego NXT is used called LeJOS. There are several alternatives in other languages but this is the only widely known Java VM. LeJOS provides classes for the most common hardware to the Lego NXT.  \\
+To implement the controller a Java version for Lego NXT is used called LeJOS. There are several alternatives in other languages but this is the only widely known Java VM. LeJOS provides classes for the most common hardware to the Lego NXT\cite{lejos}.  \\
 
 To measure the angles a gyroscope and an accelerometer are used. The gyroscope measure the angle velocity and the integrated value gives the angle of the tilted segway. However the gyroscopes raw value drifts and therefore the accelerometer is required to compensate for this. Rest of the hardware is standard nxt motors and base unit.
 
@@ -57,14 +56,14 @@ The program uses threads to realize a real time controlled system. The LeJOS VM 
 \item OpCom: Operator communication class, handles user input through passive listeners on the buttons on the base unit. Some of the commands are mode change and program exit.
 \item RefGen: Reference generator. Generate reference values for input to the robot.
 \item RegulAndIO: Control class and hardware communicator. Uses the PIDController class together with the hardware input and output to run and balance the segway.
-\item PIDController: Controller class. Calculate the P, I and D values using a standard control equation.
+\item PIDController: Controller class. Calculate the P, I and D values using a standard control equation from lecture 8\cite{L8}.
 \item Hardware: All the hardware connected to the software together with their in and output methods.
 \item FeedbackController: Controller class for the feedback controller. Not included in the original design and replaces RegulAndIO and PIDController. Otherwise it is connected in the same way as those classes.
 \end{itemize}
 
 \begin{figure}[H]
  \centering
-\includegraphics[scale=1]{pic/FeedbackClass.png}
+\includegraphics[scale=0.8]{pic/OnlyFeedback.png}
 \caption{UML diagram of the Feedback class that is used instead of the RegulAndIO class.}
 \end{figure}
 
@@ -81,12 +80,12 @@ The main reason for this choice of control structure is the rather easy way to i
 
 The figure describes how the control structure works. First the reference value is sent in. It can either be 0, to stand still, or a value decided by the reference generator. The mode is decided by the user (further description in the user information section). This value describes the desired position of the segway. Thereafter the value, together with the feedback values from the previous calculations, is processed by the two PID-controllers. When the segway should stand still only the inner loop is required. \\
 
-An optional solution is to use state feedback. Here the different measurements (angle, position, angular velocity and wheel movement) of the system is fed back and thereby the different states of the system is regulated based on previous location and value. This version got a structure like the second figure. The phi value controls the angle of the robot, phi dot the angular velocity, theta the wheel movement and theta dot the wheel velocity. \\
+An optional solution is to use state feedback. Here the different measurements (angle, position, angular velocity and wheel movement) of the system is fed back and thereby the different states of the system is regulated based on previous location and value. This version got a structure like the second figure in this section. The phi value controls the angle of the robot, phi dot the angular velocity, theta the wheel movement and theta dot the wheel velocity. \\
 
 \begin{figure}[H]
  \centering
 \includegraphics[scale=0.5]{pic/Statefeedback.png}
-\caption{Figure over the control for the state feedback version.}
+\caption{Figure over the control scheme of the state feedback version of the controller.}
 \end{figure}
 
 \section{User information}
@@ -107,81 +106,74 @@ The program should be pre-installed on the machine. To run it is done in a few s
 
 \section{Results}
 \subsection{Parameters and values}
-Model values\\
+\subsubsection*{Model values}
 $J_w = 1.6*10^-5$ Wheel inertia \\
 $R_w = 0.08$ Wheel radius \\
 $L = 0.0950$ Length from wheel to body mass \\
-$m_b = 0.5120$ body mass \\
-$m_w = 0.031$ combined mass of both wheels \\
+$m_b = 0.5120$ Body mass \\
+$m_w = 0.031$ Combined mass of both wheels \\
 $J_b = 0.0019$ Body inertia \\
-$b = 0.062$ damping factor \\
-$g = 9.81$ gravity \\ \\
-%State values\\
-%$\varphi=$\\
-%$\dot{\varphi}=$ \\
-%$\theta=$\\
-%$\dot{\theta}=$\\ \\
-L values\\
-$L_1=$\\
-$L_2=$\\
-$L_3=$\\
-$L_4=$\\ \\
-PID values (approximate, do not work)\\
-$P=$\\
-$I=$\\
-$D=$\\
-Filter equations \\ \\
-Complementary:$ $ \\
-Low pass:$G_{lp} = \frac{1}{s+1}$\\
-High pass:$G_{hp} = \frac{s}{s+10}$\\
+$b = 0.062$ Damping factor \\
+$g = 9.81$ Gravity \\ \\
+
+\subsubsection*{L values}
+$L_1=-23.8$\\
+$L_2=0$\\
+$L_3=-0.155$\\
+$L_4=0$\\ \\
+
+\subsubsection*{PID values (approximate, do not work)}
+$K=9$\\
+$Ti=2$\\
+$Tr=1$\\
+$Td=0.1$\\
+$N=10$\\ \\
+
+\subsubsection*{Filter equations}
+Complementary: $GyroAngle * 0.98 + AccelerometerAngle*0.02$ \\
+Low pass: $G_{lp} = \frac{1}{s+1}$\\
+High pass: $G_{hp} = \frac{s}{s+10}$\\
 
 \subsection{Hardware}
 
 \begin{figure}[H]
  \centering
-\includegraphics[scale=0.456]{pic/GyroAccCombAng.png}
+\includegraphics[scale=0.4]{pic/GyroAccCombAng.png}
 \caption{The figure describes the relation between the gyroscope and the accelerometer, together with the complementary filter.}
 \end{figure}
 
 \begin{figure}[H]
   \centering
-\includegraphics[scale=0.89]{pic/HP_LP.png}
-\caption{High and low pass filter}
+\includegraphics[scale=0.8]{pic/HP_LP.png}
+\caption{High and low pass filter used to filter signals from gyroscope respectively accelerometer.}
 \end{figure}
 
+%Lägg in ny bild med värden från hög och lågpass filtrerna.
 
 \subsection{PID Controller}
 \begin{figure}[H]
   \centering
 \includegraphics[scale=0.45]{pic/pid.png}
-\caption{Relation between the different parameters in the PID controller}
+\caption{Relation between the different parameters in the PID controller.}
 \end{figure}
 
 \subsection{Feedback Controller}
 \begin{figure}[H]
   \centering
 \includegraphics[scale=0.45]{pic/feedbackPlot.png}
-\caption{Relation between the diffrent parameters in the feedback controller}
+\caption{Relation between the different parameters in the feedback controller for the angle of the segway.}
 \end{figure}
 
 \section{Conclusion}
 The project in itself is a good example of real-time-programming and control. To complete the project it is required to have knowledge in both of the areas. Even though implementing a segway is a common control task (both as a Lego mindstorms project and other) is it not an easy task. There are numerous of factors that can go wrong.\\
 
-As for all realizations of theory there are error sources, this is no exception. To start with, the hardware is not perfect. As previously mentioned the gyroscope drifts, that is because of temperature shifts. This is solved by using a complementary filter together with an accelerometer to smooth out the measurements and thereby eliminate the offset. This is done by taking a large percentage of the gyro signal and a low percentage of the accelerometer signal. However, there are still some unwanted movements which a low pass filter solve. Even though the gyroscope problem is solved the accelerometer introduce another one by having a long measurement time. Thereby the period has to be increased which makes the whole system slower and more unstable. The rest of the hardware can also give errors, such as the motors being unsynchronized, cable problems and computing errors in the base unit.\\
+As for all realizations of theory there are error sources, this is no exception. To start with, the hardware is not perfect. As previously mentioned the gyroscope drifts, that is because of temperature shifts, among other things. This was originally solved by using the gyroscope and an accelerometer in a complementary filter to smooth out the measurements and thereby eliminate the drift. The final solution is to filter the gyroscope value in a high pass filter to get rid of the drift over time and add a low pass filtered accelerometer value to get rid of the flickering in sudden changes. Even though the gyroscope problem is solved the accelerometer introduce another problem by adding a couple of milliseconds to the control loop. Thereby the period has to be increased which makes the whole system slower and harder to control. The rest of the hardware can also give errors, such as the motors being unsynchronized, cable problems and computing errors in the base unit\cite{filter}.\\
 
-The software implementation can also give some errors, especially the parameters of the PID controller. Tuning the parameters is extremely time consuming and even the smallest change can give a large difference.\\
+The software implementation can also give some errors, especially the parameters of the controllers. Tuning the parameters is extremely time consuming and even the smallest change can give a large difference.\\
 
 Because of the many error sources the optional solution may give a more stable control. The new solution is the one previously discussed, a feedback loop where the different states of the segway is used to control the movements. This other solution is easier to tune and therefore less time has to be spent, especially good when time is of the essence. In terms of control, there is no considerable difference. To compare the plots from the two is a bit hard as well because of the different parameters used when controlling. However, because of the differences this gives a good indication on how systems can be controlled in many different ways with the same results, it all comes down to preferences. \\
 
 Because of the many problems and the change of controller the result of the project was not the expected one. Many changes had to be made along the way to try fix the errors constantly occurring. The implementation had different stages where different combinations of threads and monitors were used, mostly because of optimization to fit the real time requirements. The most time consuming part of the project was tuning the PID parameters, this part felt very tiresome and much work made little progress. Because of this the decision to change the control design to a state-space feedback was considered, because the segway had problems stabilising with the PID controller. This new method was rather new and unexplored because all the preparations and simulations were made matching the first solution. Things that could have been made different is things like research on different controllers before the implementation and take more basic things in consideration like hardware problems.
-
-\section{Own reflections}
-The project has been fun to work with, but also very time consuming and challenging. At the first stages of the project the model was constructed. This model was helpful when it came to understanding and setting up the basics for the whole project. Simulink is also a good tool to build up a control system and to give a view on how the solution could be implemented. From the model, an equation for the PID controllers was calculated. \\
-
-It was not easy to understand how the controller should be implemented to fit both the model and the Java implementation, but in the end a solution given by the course laboratories and lectures was used. The java code for the segway was written and the equation was used in the first stages of the parameter tuning. The implementation had different stages where different combinations of threads and monitors were used, mostly because of optimization to fit the real time requirements. The most time consuming part of the project was tuning the PID parameters, this part felt very tiresome and much work made little progress. Because of this the decision to change the control design to a state-space feedback was considered, because the segway had problems stabilising with the PID controller. This new method was rather new and unexplored because all the preparations and simulations were made matching the first solution. \\
-
-To develop the new solution some of the code have to be rewritten and the design changed. New parameters need to be tuned, which take time as well. \\
-
 
 \section{Acknowledgements}
 
@@ -190,6 +182,19 @@ To develop the new solution some of the code have to be rewritten and the design
 The Balance Filter, Shane Colton, 25/6-07\\
 \url{https://b94be14129454da9cf7f056f5f8b89a9b17da0be.googledrive.com/host/0B0ZbiLZrqVa6Y2d3UjFVWDhNZms/filter.pdf}\\
 (Hämtad 10/12-14)
+
+\bibitem{L8}
+Lecture 8, Real-Time Systems LTH, 23/9-14\\
+\url{http://www.control.lth.se/media/Education/EngineeringProgram/FRTN01/2014/L8_14.pdf}\\
+(Hämtad 14/12-14)
+
+\bibitem{lejos}
+LEJOS NXT, Java for LEGO Mindstorms\\
+\url{http://www.lejos.org/nxj.php}\\
+(Hämtad 14/12-14)
+
+
+
 \end{thebibliography}
 
 \end{document}                  % Slut på dokumentet
