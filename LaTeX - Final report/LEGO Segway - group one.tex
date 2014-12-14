@@ -13,10 +13,12 @@
 \usepackage{float}
 
 \title{Lego Mindstorm Project: Lego Segway\\
-Course FRTN01 - Real time systems}
+FRTN01 - Real time systems}
 \author{Simon Wallström, dat11swa@student.lu.se\\
 Adam Dalentoft, dat11ada@student.lu.se\\
-Jonathan Karlsson, ada09jka@student.lu.se}
+Jonathan Karlsson, ada09jka@student.lu.se\\\\
+Supervisor: Victor Millnert
+}
 %\date{1 augusti 1994}        % Blir dagens datum om det utelämnas
 \begin{document}              % Början på dokumentet
 
@@ -27,49 +29,53 @@ Jonathan Karlsson, ada09jka@student.lu.se}
 \tableofcontents
 \newpage
 \section{Introduction}
-The goal of this project is to build and control a two-wheeled robot - a Lego Segway - using NXT Lego Mindstorm 2.0. A segway is an unstable system that constantly needs to be regulated to work. To regulate this system several parameters is required. It is important to know the mass and specifications of the hardware that is used and the physics and movements in the system. Basically how it works is that the the robot tilts and the angle is measured. Thereafter the angle is processed by the controller to calculate the required change in degree for the wheels. It is possible to control the segway in a few different ways. One way is to use pole placing and feedback control. Even though this is a good way to regulate the system it is not the first choice. Instead, the structure that will be described in this report uses two PID controllers, one for the wheel position and one for the angle of the robot. Later, the structure is changed because of lack of time, more about this later.\\
+The goal of this project is to build and control a two-wheeled robot - a Lego Segway - using NXT Lego Mindstorm 2.0. A segway is an unstable system that constantly needs to be regulated to work. To regulate this system several parameters is required. It is important to know the mass and specifications of the hardware that is used and the physics and movements in the system. Basically how it works is that the the robot tilts and the angle is measured. Thereafter the angle is processed by the controller to calculate the required change power and direction of the motors. It is possible to control the segway in a few different ways. One way is to use pole placing and feedback control. Even though this is a good way to regulate the system it is not the first choice. Instead, the structure that will be described in this report uses two PID controllers, one for the wheel position and one for the angle of the robot. Later, the structure is changed to a state feedback controller due to lack of time, more about this later.
 
 \begin{figure}[H]
  \centering
 \includegraphics[scale=0.8]{pic/segway.png}
-\caption{Model over the segway movements, all variables and their names are set in the picture. Values on the variables is given in the results }
+\caption{Model over the segway movements, all variables and their names are set in the picture. Values on the variables is given in the results.}
 \end{figure}
 
 Before the implementation can begin it is a good idea to set up a model of the process. The process is described in the picture, including the different variables that is needed to calculate the movements in the system. These variables are then used to calculate the state-space form for the system, describing the equation L = T - V. The state-space form of the system can thereafter be used in matlab and simulink to describe a control system for the segway. Simulink can also be used to make a simulation of the calculated system to determine parameters for the PID-controllers. \\
 
 To implement the controller a Java version for Lego NXT is used called LeJOS. There are several alternatives in other languages but this is the only widely known Java VM. LeJOS provides classes for the most common hardware to the Lego NXT.  \\
 
-To measure the angles a gyroscope and an accelerometer are used. The gyroscope measure the angle velocity and the integrated value gives the angle of the tilted segway. However the gyroscopes raw value drifts and therefore the accelerometer is required to compensate for this. Rest of the hardware is standard nxt motors and base unit.\\
-
+To measure the angles a gyroscope and an accelerometer are used. The gyroscope measure the angle velocity and the integrated value gives the angle of the tilted segway. However the gyroscopes raw value drifts and therefore the accelerometer is required to compensate for this. Rest of the hardware is standard nxt motors and base unit.
 
 \section{Program structure}
-The program uses threads to realize a real time controlled system. The LeJOS VM provides support for real time threads and synchronization, the same as standard Java. There is a variety of classes building up the program, these are described in the diagram below. To clarify the meaning of the different classes there is also a brief description of them.\\
+The program uses threads to realize a real time controlled system. The LeJOS VM provides support for real time threads and synchronization, the same as standard Java. There is a variety of classes building up the program, these are described in the diagram below. To clarify the meaning of the different classes there is also a brief description of them.
 
 \begin{figure}[H]
  \centering
 \includegraphics[scale=0.5]{pic/UML_LEGO_SEGWAY_ALLCAPS.png}
-\caption{Figure over the classes for the PID controller}
+\caption{UML diagram of the classes for the PID controller.}
 \end{figure}
 
 \begin{itemize}
 \item StartUp: main class, starts all the other classes and threads.
-\item OpCom: Operator communication class, handles user input through the buttons on the base unit. Some of the commands are mode change and program exit.
+\item OpCom: Operator communication class, handles user input through passive listeners on the buttons on the base unit. Some of the commands are mode change and program exit.
 \item RefGen: Reference generator. Generate reference values for input to the robot.
 \item RegulAndIO: Control class and hardware communicator. Uses the PIDController class together with the hardware input and output to run and balance the segway.
 \item PIDController: Controller class. Calculate the P, I and D values using a standard control equation.
-Hardware: All the hardware connected to the software together with their in and output methods.
-\item FeedbackController: Controller class for the feedback controller. Not included in the original design and replaces RegulAndIO and PIDController. Otherwise it is connected int the same way as those classes.
+\item Hardware: All the hardware connected to the software together with their in and output methods.
+\item FeedbackController: Controller class for the feedback controller. Not included in the original design and replaces RegulAndIO and PIDController. Otherwise it is connected in the same way as those classes.
 \end{itemize}
 
-\section{Control design}
-As mentioned in the introduction the controller will contain two PID-controllers. They are connected in a cascade to regulate the two angles: tilt angle and wheel angle (rotation of the wheel). The inner loop controls the tilt angle by moving the wheels and the outer loop controls the wheel position in case of a reference change.\\
+\begin{figure}[H]
+ \centering
+\includegraphics[scale=1]{pic/FeedbackClass.png}
+\caption{UML diagram of the Feedback class that is used instead of the RegulAndIO class.}
+\end{figure}
 
-BILD\\
-%\begin{figure}[H]
-%  \centering
-%\includegraphics[scale=0.5]{pic/UML_LEGO_SEGWAY_ALLCAPS.png}
-%\caption{Figure over the PID controller. The inner loop controls the angle and the outer the wheels.}
-%\end{figure}
+\section{Control design}
+As mentioned in the introduction the controller will contain two PID-controllers. They are connected in a cascade to regulate the two angles: tilt angle and wheel angle (rotation of the wheel). The inner loop controls the tilt angle by moving the wheels and the outer loop controls the wheel position in case of a reference change and to make sure the robot doesn't drift when standing still.
+
+\begin{figure}[H]
+  \centering
+\includegraphics[scale=0.8]{pic/PIDs.png}
+\caption{Figure over the PID controllers. The inner loop controls the angle of the segway and the outer the position of the wheels.}
+\end{figure}
 
 The main reason for this choice of control structure is the rather easy way to implement it. As mentioned in the introduction there are other ways to control the system, but this method has been used earlier in the course which made it the first choice and more natural to implement. \\
 
