@@ -27,6 +27,7 @@ Supervisor: Victor Millnert}
 \setcounter{page}{1}
 \tableofcontents
 \newpage
+%\abstract{asdf???}
 \section{Introduction}
 The goal of this project is to build and control a two-wheeled robot - a Lego Segway - using NXT Lego Mindstorm 2.0. A segway is an unstable system that constantly needs to be regulated to work. To regulate this system several parameters is required. It is important to know the mass and specifications of the hardware that is used and the physics and movements in the system. Basically how it works is that the the robot tilts and the angle is measured. Thereafter the angle is processed by the controller to calculate the required change power and direction of the motors. It is possible to control the segway in a few different ways. One way is to use pole placing and feedback control. Even though this is a good way to regulate the system it is not the first choice. Instead, the structure that will be described in this report uses two PID controllers, one for the wheel position and one for the angle of the robot. Later, the structure is changed to a state feedback controller due to lack of time, more about this later.
 
