@@ -35,7 +35,7 @@ public class FeedbackController extends Thread implements Controller{
 		this.setPriority(MAX_PRIORITY);
 		
 		run = true;
-		log = true;
+		log = false;
 		
 		uMin = -100;
 		uMax = 100;
@@ -69,9 +69,9 @@ public class FeedbackController extends Thread implements Controller{
 		long duration;
 
 		float phi = 0; //Angle
-		float phiDot = 0; //AngleVel
-		float theta  = 0;//wheel
-		float thetaDot = 0;//wheel rot speed, uppdateras aldrig.
+		float phiDot = 0; //Angle Velocity
+		float theta  = 0;//Wheel Angle
+		float thetaDot = 0;//Wheel rotation speed, uppdateras aldrig.
 
 		float vPhi, vPhidot, vTheta, vThetaDot;
 		
@@ -81,7 +81,7 @@ public class FeedbackController extends Thread implements Controller{
 
 		int counter = 0;
 
-		float[] lVector = {-23.8f, 0, -0.155f, 0};
+		float[] lVector = {-25.0f, 0, -0.115f, 0};
 		
 		float gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
 		float accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
@@ -101,20 +101,21 @@ public class FeedbackController extends Thread implements Controller{
 		
 		long t = System.currentTimeMillis();
 		while (run){
-			//Gyro calc wieh hardcoded HP for h = 0.02 
+			
+			//Gyro calc with hardcoded HP for h = 0.01 resp 0.02 
 			phiDot = gyro.getAngularVelocity();	
 			gyroAngle += phiDot * period;
-//			gyroF = 0.9048f * lastGyroF + 0.9524f * gyroAngle - 0.9524f * lastGyroAngle;//10ms period
-			gyroF = 0.8182f * lastGyroF + 0.9091f * gyroAngle - 0.9091f * lastGyroAngle;//20ms period
+			gyroF = 0.9048f * lastGyroF + 0.9524f * gyroAngle - 0.9524f * lastGyroAngle;//10ms period
+//			gyroF = 0.8182f * lastGyroF + 0.9091f * gyroAngle - 0.9091f * lastGyroAngle;//20ms period
 			
 			//Acc calc with hardcoded LP for h = 0.01 resp 0.02 
 			accAngle = acc.getYTilt();
-//			accF = 0.99f * lastAccF + 0.004975f * accAngle + 0.004975f * lastAccAngle;//10ms period
-			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;//20ms period
+			accF = 0.99f * lastAccF + 0.004975f * accAngle + 0.004975f * lastAccAngle;//10ms period
+//			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;//20ms period
 			
-			phi = gyroF + accF - 1.525f;
+			phi = gyroF + accF; // - 1.525f;
 
-			theta = (float) ((left.getTachoCount()+right.getTachoCount())/2.0);
+//			theta = (float) ((left.getTachoCount()+right.getTachoCount())/2.0);
 //			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
 
 			// Power sent to the motors
@@ -126,7 +127,7 @@ public class FeedbackController extends Thread implements Controller{
 			u = limit(ref + vPhi + vTheta + vPhidot + vThetaDot);
 
 			//Set power and direction
-			power = (int)Math.round(Math.abs(u)+3);
+			power = (int)Math.round(Math.abs(u)+1);
 
 			left.setPower(power);
 			right.setPower(power);
@@ -157,6 +158,7 @@ public class FeedbackController extends Thread implements Controller{
 			}
 			counter++;
 
+			
 			//sleep
 			t = t + (long)(period*1000);
 			duration = t - System.currentTimeMillis();
