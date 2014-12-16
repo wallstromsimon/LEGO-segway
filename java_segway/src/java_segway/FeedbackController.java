@@ -81,10 +81,11 @@ public class FeedbackController extends Thread implements Controller{
 
 		int counter = 0;
 
-		float[] lVector = {-25.0f, 0, -0.115f, 0};
+		float[] lVector = {-22.0f, 0f, -0.030f, -0.025f};
 		
 		float gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
 		float accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
+		float lastTheta = 0;
 		
 		System.out.println("Calibrating...");
 		left.stop();
@@ -113,11 +114,14 @@ public class FeedbackController extends Thread implements Controller{
 			accF = 0.99f * lastAccF + 0.004975f * accAngle + 0.004975f * lastAccAngle;//10ms period
 //			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;//20ms period
 			
-			phi = gyroF + accF; // - 1.525f;
+			phi = gyroF + accF - 2.975f;
 
-//			theta = (float) ((left.getTachoCount()+right.getTachoCount())/2.0);
+			theta = (float) ((left.getTachoCount()+right.getTachoCount())/2.0);
+			thetaDot = (theta - lastTheta) / period;
+			lastTheta = theta;
 //			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
-
+			
+			
 			// Power sent to the motors
 			vPhi = lVector[0]*phi;
 			vTheta = lVector[1]*theta;
@@ -127,7 +131,7 @@ public class FeedbackController extends Thread implements Controller{
 			u = limit(ref + vPhi + vTheta + vPhidot + vThetaDot);
 
 			//Set power and direction
-			power = (int)Math.round(Math.abs(u)+1);
+			power = (int)Math.round(Math.abs(u)+2);
 
 			left.setPower(power);
 			right.setPower(power);
