@@ -29,6 +29,8 @@ public class FeedbackController extends Thread implements Controller{
 
 	private USBConnection conn;
 	private DataOutputStream dOut;
+	
+	private Lvalues l;
 
 	public FeedbackController(float period){
 		this.period = period;
@@ -44,6 +46,9 @@ public class FeedbackController extends Thread implements Controller{
 		right = new NXTMotor(MotorPort.B);
 		gyro = new GyroSensor(SensorPort.S2);
 		acc = new AccelMindSensor(SensorPort.S3);
+		
+		l = new Lvalues();
+		l.updateL(-22.0f, 0f, -0.030f, -0.025f);
 		
 		if(log){
 			LCD.drawString("waiting", 0, 0);
@@ -81,7 +86,7 @@ public class FeedbackController extends Thread implements Controller{
 
 		int counter = 0;
 
-		float[] lVector = {-22.0f, 0f, -0.030f, -0.025f};
+//		float[] lVector = {-22.0f, 0f, -0.030f, -0.025f};
 		
 		float gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
 		float accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
@@ -123,10 +128,10 @@ public class FeedbackController extends Thread implements Controller{
 			
 			
 			// Power sent to the motors
-			vPhi = lVector[0]*phi;
-			vTheta = lVector[1]*theta;
-			vPhidot = lVector[2]*phiDot;
-			vThetaDot = lVector[3]*thetaDot;
+			vPhi = l.getL1()*phi;
+			vTheta = l.getL2()*theta;
+			vPhidot = l.getL3()*phiDot;
+			vThetaDot = l.getL4()*thetaDot;
 			
 			u = limit(ref + vPhi + vTheta + vPhidot + vThetaDot);
 
@@ -188,6 +193,38 @@ public class FeedbackController extends Thread implements Controller{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	
+//	public metod för att uppdatera L
+	
+	private class Lvalues{
+		private float L1; 
+		private float L2;
+		private float L3;
+		private float L4;
+		
+		private synchronized void updateL(float L1, float L2, float L3, float L4){
+			this.L1 = L1;
+			this.L2 = L2;
+			this.L3 = L3;
+			this.L4 = L4;
+		}
+		
+		private synchronized float getL1(){
+			return L1;
+		}
+		
+		private synchronized float getL2(){
+			return L2;
+		}
+		
+		private synchronized float getL3(){
+			return L3;
+		}
+		
+		private synchronized float getL4(){
+			return L4;
 		}
 	}
 }
