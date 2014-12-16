@@ -1,18 +1,25 @@
 package java_segway;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 import lejos.nxt.Button;
 import lejos.nxt.LCD;
 import lejos.nxt.SensorPort;
 import lejos.nxt.addon.AccelMindSensor;
 import lejos.nxt.addon.GyroSensor;
+import lejos.nxt.comm.USB;
+import lejos.nxt.comm.USBConnection;
 
 public class FilterTest {
 
 	public static void main(String[] args){
 		GyroSensor gyro = new GyroSensor(SensorPort.S2);
 		AccelMindSensor acc = new AccelMindSensor(SensorPort.S3);
-
-		gyro.recalibrateOffset();
+		
+		LCD.drawString("waiting", 0, 0);
+		USBConnection conn = USB.waitForConnection();
+		DataOutputStream dOut = conn.openDataOutputStream();
 		
 		double period = 0.02;
 		long t = System.currentTimeMillis();
@@ -23,16 +30,15 @@ public class FilterTest {
 		double gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
 		double accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
 		
+		gyro.recalibrateOffset();
 		while(!Button.ESCAPE.isDown()){
 			angVel = gyro.getAngularVelocity();	
-//			angVel = Math.abs(angVel) < 1 ? 0 : angVel;
 			gyroAngle += angVel * period;
 
 			//Hardcoded HP for h = 0.02 
 			gyroF = 0.8182 * lastGyroF + 0.9091 * gyroAngle - 0.9091 * lastGyroAngle;
+			
 			accAngle = acc.getYTilt();
-//			acc.getAllAccel(accV, 0);
-//			accAngle = -Math.atan2(accV[0], accV[1])*rad2deg; //+90 for standing straight
 
 			//Hardcoded LP for h = 0.02 
 			accF = 0.9802 * lastAccF + 0.009901 * accAngle + 0.009901 * lastAccAngle;
@@ -45,9 +51,12 @@ public class FilterTest {
 			lastAccAngle = accAngle;
 			
 			if(count%10 == 0){
-				LCD.clear();
-				LCD.drawString("Ang: " + ang, 0, 0);
-//				LCD.drawString("AccX:  " + accX, 0, 2);
+				try {
+					dOut.writeBytes(gyroAngle + " " + gyroF + " " + accAngle + " " + accF + " " + ang + "\n");
+					dOut.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 			count++;
 			t = t + (long)(period*100);
@@ -61,6 +70,14 @@ public class FilterTest {
 			} else{
 //				System.out.println(":(");
 			}
+		}
+		try {
+			dOut.writeBytes("exit\n");
+			dOut.flush();
+			dOut.close();
+			conn.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
