@@ -8,8 +8,8 @@ hold on
 grid
 plot(feedbackData(:,3), 'g')
 plot(feedbackData(:,5), 'k')
-title('Segway angle and angular velocity')
-legend('Phi','PhiDot','u', 'location', 'northwest')
+title('Wheel angle and angular velocity')
+legend('Theta','ThetaDot','u', 'location', 'northeast')
 ylabel('%-power, deg, deg/sec')
 xlabel('periods')
 hold off
@@ -20,8 +20,8 @@ hold on
 grid
 plot(feedbackData(:,4), 'g')
 plot(feedbackData(:,5), 'k')
-title('Segway angle and angular velocity, limited')
-legend('L1 * Phi','L3 * PhiDot','u', 'location', 'northwest')
+title('Wheel angle and angular velocity, limited')
+legend('L2 * Theta','L4 * ThetaDot','u', 'location', 'northeast')
 ylabel('%-power, deg, deg/sec')
 xlabel('periods')
 hold off
