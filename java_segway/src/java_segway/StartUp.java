@@ -8,6 +8,7 @@ public class StartUp {
 //		RegulAndIO reg = new RegulAndIO(regPeriod);
 		FeedbackController reg = new FeedbackController(regPeriod);
 		OpCom opCom = new OpCom(null, reg);
+		opCom.start();
 		reg.start();
 	}
 }

@@ -187,4 +187,10 @@ public class RegulAndIO extends Thread implements Controller{
 			}
 		}
 	}
+
+	@Override
+	public void updateL(float L1, float L2, float L3, float L4) {
+		// TODO Auto-generated method stub
+		
+	}
 }

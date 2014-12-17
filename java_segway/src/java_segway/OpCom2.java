@@ -50,7 +50,7 @@ public class OpCom2 extends Thread{
 					s = s.substring(i).trim();
 					
 					L4 = Float.parseFloat(s);
-//					c.u
+					c.updateL(L1, L2, L3, L4);
 					LCD.drawString(L1 + "   \n" + L2 + "   \n" + L3 + "   \n" + L4 + "   ",0,0);
 				}
 			} catch (IOException e) {
