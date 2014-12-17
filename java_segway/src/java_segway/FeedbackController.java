@@ -48,7 +48,7 @@ public class FeedbackController extends Thread implements Controller{
 		acc = new AccelMindSensor(SensorPort.S3);
 		
 		l = new Lvalues();
-		l.updateL(-10.0f, 0f, -0.355f, -0.225f);  //-10.0 0 -0.355 -0.225
+		l.updateL(-9.5f, 0f, -0.500f, -0.215f);  //-10.0 0 -0.355 -0.225... -9.0 0 -0.500 -0.215
 		
 		if(log){
 			LCD.drawString("waiting", 0, 0);
