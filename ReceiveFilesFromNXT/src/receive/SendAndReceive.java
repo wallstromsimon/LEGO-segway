@@ -40,18 +40,22 @@ public class SendAndReceive {
 		boolean run = true;
 		Scanner scan = new Scanner(System.in);
 		while(run){
-			try {
-				s2 = dIn.readLine();
-				if(s2.equals("exit")){
+//			try {
+//				s2 = dIn.readLine();
+//				if(s2.equals("exit")){
+//					run = false;
+//					break;
+//				}
+//			} catch (IOException e1) {
+//				e1.printStackTrace();
+//			}
+//			
+			if(scan.hasNextLine()){
+				s = scan.nextLine();
+				if(s.equals("exit")){
 					run = false;
 					break;
 				}
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-			
-			if(scan.hasNextLine()){
-				s = scan.nextLine();
 				try {
 					dOut.writeBytes(s + "\n");
 					dOut.flush();

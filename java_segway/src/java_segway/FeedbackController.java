@@ -39,8 +39,8 @@ public class FeedbackController extends Thread implements Controller{
 		run = true;
 		log = false;
 		
-		uMin = -100;
-		uMax = 100;
+		uMin = -1000;
+		uMax = 1000;
 		
 		left = new NXTMotor(MotorPort.C);
 		right = new NXTMotor(MotorPort.B);
@@ -48,7 +48,7 @@ public class FeedbackController extends Thread implements Controller{
 		acc = new AccelMindSensor(SensorPort.S3);
 		
 		l = new Lvalues();
-		l.updateL(-22.0f, 0f, -0.30f, -0.025f);
+		l.updateL(-22.0f, 1f, -0.30f, -0.025f);
 		
 		if(log){
 			LCD.drawString("waiting", 0, 0);
@@ -119,10 +119,10 @@ public class FeedbackController extends Thread implements Controller{
 			accF = 0.99f * lastAccF + 0.004975f * accAngle + 0.004975f * lastAccAngle;//10ms period
 //			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;//20ms period
 			
-			phi = gyroF + accF-1.2f;// - 2.975f;
+			phi = gyroF + accF-0.6f;// - 2.975f;
 
 			theta = (float) ((left.getTachoCount()+right.getTachoCount())/2.0);
-			thetaDot = (theta - lastTheta) / period;
+			thetaDot = Math.abs(theta - lastTheta) / period;
 			lastTheta = theta;
 //			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
 			
@@ -178,7 +178,7 @@ public class FeedbackController extends Thread implements Controller{
 					e.printStackTrace();
 				}
 			} else{
-				System.out.println("oops: " + (duration-(period*1000)));
+//				System.out.println("oops: " + (duration-(period*1000)));
 			}
 		}
 		//Stop and save on exit
@@ -196,10 +196,8 @@ public class FeedbackController extends Thread implements Controller{
 		}
 	}
 	
-//	public metod för att uppdatera L
 	public synchronized void updateL(float L1, float L2, float L3, float L4){
 		l.updateL(L1, L2, L3, L4);
-		System.out.println("updated");
 	}
 	
 	private class Lvalues{

@@ -100,8 +100,8 @@ public class OpCom extends Thread{
 			}
 		}
 		try {
-			dOut.writeBytes("exit\n");
-			dOut.flush();
+//			dOut.writeBytes("exit\n");
+//			dOut.flush();
 			dOut.close();
 			dIn.close();
 			conn.close();
