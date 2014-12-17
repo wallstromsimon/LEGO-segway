@@ -48,7 +48,7 @@ public class FeedbackController extends Thread implements Controller{
 		acc = new AccelMindSensor(SensorPort.S3);
 		
 		l = new Lvalues();
-		l.updateL(-22.0f, 1f, -0.30f, -0.025f);
+		l.updateL(-10.0f, 0f, -0.355f, -0.225f);  //-10.0 0 -0.355 -0.225
 		
 		if(log){
 			LCD.drawString("waiting", 0, 0);
@@ -86,7 +86,7 @@ public class FeedbackController extends Thread implements Controller{
 
 		int counter = 0;
 
-//		float[] lVector = {-22.0f, 0f, -0.030f, -0.025f};
+//		float[] lVector = {-30.0f, 0f, -0.030f, -0.025f};
 		
 		float gyroF = 0, lastGyroF = 0, gyroAngle = 0, lastGyroAngle = 0;
 		float accF = 0, lastAccF = 0, accAngle = 0, lastAccAngle = 0;
@@ -119,10 +119,10 @@ public class FeedbackController extends Thread implements Controller{
 			accF = 0.99f * lastAccF + 0.004975f * accAngle + 0.004975f * lastAccAngle;//10ms period
 //			accF = 0.9802f * lastAccF + 0.009901f * accAngle + 0.009901f * lastAccAngle;//20ms period
 			
-			phi = gyroF + accF-0.6f;// - 2.975f;
+			phi = gyroF + accF + 0.375f; // minus om framåtvikt.. plus bakåt; innan var det 0.38
 
 			theta = (float) ((left.getTachoCount()+right.getTachoCount())/2.0);
-			thetaDot = Math.abs(theta - lastTheta) / period;
+			thetaDot = (theta - lastTheta) / period;
 			lastTheta = theta;
 //			thetaDot = (left.getRotationSpeed()+right.getRotationSpeed())/2.0;
 			

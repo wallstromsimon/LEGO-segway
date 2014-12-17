@@ -89,7 +89,6 @@ public class OpCom extends Thread{
 					
 					L4 = Float.parseFloat(s);
 					c.updateL(L1, L2, L3, L4);
-					LCD.drawString(L1 + "   \n" + L2 + "   \n" + L3 + "   \n" + L4 + "   ",0,0);
 				}
 				sleep(1000);
 			} catch (IOException e) {
