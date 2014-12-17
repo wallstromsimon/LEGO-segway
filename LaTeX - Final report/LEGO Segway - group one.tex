@@ -29,7 +29,7 @@ Supervisor: Victor Millnert}
 \newpage
 %\abstract{asdf???}
 \section{Introduction}
-The goal of this project is to build and control a two-wheeled robot - a Lego Segway - using NXT Lego Mindstorm 2.0. A segway is an unstable system that constantly needs to be regulated to work. To regulate this system several parameters is required. It is important to know the mass and specifications of the hardware that is used and the physics and movements in the system. Basically how it works is that the the robot tilts and the angle is measured. Thereafter the angle is processed by the controller to calculate the required change power and direction of the motors. It is possible to control the segway in a few different ways. One way is to use pole placing and feedback control. Even though this is a good way to regulate the system it is not the first choice. Instead, the structure that will be described in this report uses two PID controllers, one for the wheel position and one for the angle of the robot. Later, the structure is changed to a state feedback controller due to lack of time, more about this later.
+The goal of this project is to build and control a two-wheeled robot - a Lego Segway - using NXT Lego Mindstorm 2.0. A segway is an unstable system that constantly needs to be regulated to work. To regulate this system several parameters is required. It is important to know the mass and specifications of the hardware that is used and the physics and movements in the system. Basically how it works is that the the robot tilts and the angle is measured. Thereafter the angle is processed by the controller to calculate the required change in power and direction of the motors. It is possible to control the segway in a few different ways. One way is to use pole placing and feedback control. Even though this is a good way to regulate the system it is not the first choice. Instead, the structure that will be described in this report uses two PID controllers, one for the wheel position and one for the angle of the robot. Later, the structure is changed to a state feedback controller due to lack of time, more about this later.
 
 \begin{figure}[H]
  \centering
@@ -54,7 +54,7 @@ The program uses threads to realize a real time controlled system. The LeJOS VM 
 
 \begin{itemize}
 \item StartUp: main class, starts all the other classes and threads.
-\item OpCom: Operator communication class, handles user input through passive listeners on the buttons on the base unit. Some of the commands are mode change and program exit.
+\item OpCom: Operator communication class, handles user input through passive listeners on the buttons on the base unit. OpCom also receives parameter updates from a command line interface. Some of the commands are for control variable change and program exit.
 \item RefGen: Reference generator. Generate reference values for input to the robot.
 \item RegulAndIO: Control class and hardware communicator. Uses the PIDController class together with the hardware input and output to run and balance the segway.
 \item PIDController: Controller class. Calculate the P, I and D values using a standard control equation from lecture 8\cite{L8}.
@@ -81,7 +81,7 @@ The main reason for this choice of control structure is the rather easy way to i
 
 The figure describes how the control structure works. First the reference value is sent in. It can either be 0, to stand still, or a value decided by the reference generator. The mode is decided by the user (further description in the user information section). This value describes the desired position of the segway. Thereafter the value, together with the feedback values from the previous calculations, is processed by the two PID-controllers. When the segway should stand still only the inner loop is required. \\
 
-An optional solution is to use state feedback. Here the different measurements (angle, position, angular velocity and wheel movement) of the system is fed back and thereby the different states of the system is regulated based on previous location and value. This version got a structure like the second figure in this section. The phi value controls the angle of the robot, phi dot the angular velocity, theta the wheel movement and theta dot the wheel velocity. \\
+An optional solution is to use state feedback. Here the different measurements (angle, position, angular velocity and wheel movement) of the system is fed back and thereby the different states of the system is controlled based on previous location and value. This version got a structure like the second figure in this section. The phi value controls the angle of the robot, phi dot the angular velocity, theta the wheel movement and theta dot the wheel velocity. This method is used in the final solution.\\
 
 \begin{figure}[H]
  \centering
@@ -91,7 +91,7 @@ An optional solution is to use state feedback. Here the different measurements (
 
 \section{User information}
 
-The segway do not have a user interface except the small screen and the buttons on the front of the base unit. When the segway is in motion these become a rather impractical way of controlling the system. Therefore the system is started before it is put down. It is however possible to change mode with the buttons from stand still mode and a mode that changes the reference value to make the robot move forward and backward. A press on the dark grey button, the Escape button, will quit the program. The screen give out small messages to inform the user how to handle the robot and what is happening in the system.\\
+The segway do not have a user interface except the small screen and the buttons on the front of the base unit. When the segway is in motion these become a rather impractical way of controlling the system. Therefore the system is started before it is put down. A press on the dark grey button, the Escape button, will quit the program. The screen give out small messages to inform the user how to handle the robot and what is happening in the system.\\
 
 The program should be pre-installed on the machine. To run it is done in a few simple steps.
 
@@ -101,7 +101,6 @@ The program should be pre-installed on the machine. To run it is done in a few s
 \item Now the program starts. A message will be displayed, “Calibrating...”. It is important to hold the robot stationary, otherwise the calibration of the hardware may be disturbed.
 \item After the calibration, the message "Calibrated, hold robot and press Enter to balance" is shown. Now, put down the robot on the ground and press the Enter key.
 \item After the massage “Balancing” is displayed the segway will start to balance, hopefully.
-\item If a different mode than the default one is selected the balancing point may differ and the segway will move forward and backward.
 \item To terminate the program push the Escape key.
 \end{enumerate}
 
@@ -118,12 +117,12 @@ $b = 0.062$ Damping factor \\
 $g = 9.81$ Gravity \\ \\
 
 \subsubsection*{L values}
-$L_1=-23.8$\\
+$L_1=-10$\\
 $L_2=0$\\
-$L_3=-0.155$\\
-$L_4=0$\\ \\
+$L_3=-0.355$\\
+$L_4=-0.225$\\ \\
 
-\subsubsection*{PID values (approximate, do not work)}
+\subsubsection*{PID values (experimental, do not work)}
 $K=9$\\
 $Ti=2$\\
 $Tr=1$\\
@@ -149,7 +148,11 @@ High pass: $G_{hp} = \frac{s}{s+10}$\\
 \caption{High and low pass filter used to filter signals from gyroscope respectively accelerometer.}
 \end{figure}
 
-%Lägg in ny bild med värden från hög och lågpass filtrerna.
+\begin{figure}[H]
+  \centering
+\includegraphics[scale=0.4]{pic/HP_LP_in_action.png}
+\caption{High and low pass filter used to filter signals from gyroscope respectively accelerometer.}
+\end{figure}
 
 \subsection{PID Controller}
 \begin{figure}[H]
@@ -165,16 +168,22 @@ High pass: $G_{hp} = \frac{s}{s+10}$\\
 \caption{Relation between the different parameters in the feedback controller for the angle of the segway.}
 \end{figure}
 
+\begin{figure}[H]
+  \centering
+\includegraphics[scale=0.47]{pic/feedbackPlot.png}
+\caption{THETA ISTÄLLET!}
+\end{figure}
+
 \section{Conclusion}
-The project in itself is a good example of real-time-programming and control. To complete the project it is required to have knowledge in both of the areas. Even though implementing a segway is a common control task (both as a Lego mindstorms project and other) is it not an easy task. There are numerous of factors that can go wrong.\\
+The project in itself is a good example of real-time-programming and control. To complete the project it is required to have knowledge in both of the areas. Even though implementing a segway is a common control task (both as a Lego Mindstorms project and others) is it not an easy task. There are numerous of factors that can go wrong.\\
 
 As for all realizations of theory there are error sources, this is no exception. To start with, the hardware is not perfect. As previously mentioned the gyroscope drifts, that is because of temperature shifts, among other things. This was originally solved by using the gyroscope and an accelerometer in a complementary filter to smooth out the measurements and thereby eliminate the drift. The final solution is to filter the gyroscope value in a high pass filter to get rid of the drift over time and add a low pass filtered accelerometer value to get rid of the flickering in sudden changes. Even though the gyroscope problem is solved the accelerometer introduce another problem by adding a couple of milliseconds to the control loop. Thereby the period has to be increased which makes the whole system slower and harder to control. The rest of the hardware can also give errors, such as the motors being unsynchronized, cable problems and computing errors in the base unit\cite{filter}.\\
 
 The software implementation can also give some errors, especially the parameters of the controllers. Tuning the parameters is extremely time consuming and even the smallest change can give a large difference.\\
 
-Because of the many error sources the optional solution may give a more stable control. The new solution is the one previously discussed, a feedback loop where the different states of the segway is used to control the movements. This other solution is easier to tune and therefore less time has to be spent, especially good when time is of the essence. In terms of control, there is no considerable difference. To compare the plots from the two is a bit hard as well because of the different parameters used when controlling. However, because of the differences this gives a good indication on how systems can be controlled in many different ways with the same results, it all comes down to preferences. \\
+Because of the many error sources the state feedback solution may give a more stable control. The new solution is the one previously discussed, a feedback loop where the different states of the segway is used to control the movements. This solution is easier to tune and therefore less time has to be spent, especially good when time is of the essence. In terms of control, there is no considerable difference. To compare the plots from the two is a bit hard because of the different parameters used when controlling. However, because of the differences this gives a good indication on how systems can be controlled in many different ways with the same results, it all comes down to preferences. \\
 
-Because of the many problems and the change of controller the result of the project was not the expected one. Many changes had to be made along the way to try fix the errors constantly occurring. The implementation had different stages where different combinations of threads and monitors were used, mostly because of optimization to fit the real time requirements. The most time consuming part of the project was tuning the PID parameters, this part felt very tiresome and much work made little progress. Because of this the decision to change the control design to a state-space feedback was considered, because the segway had problems stabilising with the PID controller. This new method was rather new and unexplored because all the preparations and simulations were made matching the first solution. Things that could have been made different is things like research on different controllers before the implementation and take more basic things in consideration like hardware problems.
+Because of the many problems and the change of controller the result of the project was not the expected one. Many changes had to be made along the way to try fix the errors constantly occurring. The implementation had different stages where different combinations of threads and monitors were used, mostly because of optimization to fit the real time requirements. The most time consuming part of the project was tuning the PID parameters, this part felt very tiresome and much work made little progress. Because of this the decision to change the control design to a state feedback was considered, because the segway had problems stabilising with the PID controller. This new method was rather new and unexplored because all the preparations and simulations were made matching the first solution. Things that could have been made different is things like research on different controllers before the implementation and take more basic things in consideration like hardware problems. The project being successful was partly because of an implementation that made it possible to update the control parameters in real time without having to recompile for each change. If this would have been implemented earlier it would have reduced the time spent on tuning.
 
 %\section{Acknowledgements}
 
